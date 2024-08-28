@@ -1,0 +1,9 @@
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.7.5", features = ["multipart", "ws"] }
+axum-macros = "0.4.1"
+tokio = { version = "1.39.3", features = ["full"] }

@@ -1,0 +1,29 @@
+[package]
+name = "client"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "client_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-rc", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0-rc", features = [] }
+tauri-plugin-shell = "2.0.0-rc"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1.39.3", features = ["full"] }
+tokio-tungstenite = "0.23.1"
+tokio-util = { version = "0.7.11", features = ["full", "io-util"] }
+futures-util = { version = "0.3.30", features = ["sink"] }
+tauri-plugin-websocket = "2.0.0-rc"
+tauri-plugin-log = "2.0.0-rc"
+log = "0.4.22"
+
