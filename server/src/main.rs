@@ -1,15 +1,17 @@
 use axum::{
+    body::Bytes,
     extract::{
         ws::{Message, WebSocket},
-        ConnectInfo, State, WebSocketUpgrade,
+        ConnectInfo, DefaultBodyLimit, State, WebSocketUpgrade,
     },
-    response::Html,
-    routing::get,
+    http::StatusCode,
+    response::{Html, IntoResponse},
+    routing::{get, post},
     Router,
 };
 use axum_macros::debug_handler;
 use std::{net::SocketAddr, sync::Arc};
-use tokio::sync::broadcast;
+use tokio::{fs::File, io::AsyncWriteExt, sync::broadcast};
 
 #[tokio::main]
 async fn main() {
@@ -18,6 +20,7 @@ async fn main() {
     let routes = Router::new()
         .route("/", get(|| async { Html::from("Video Sync Server") }))
         .route("/ws", get(ws_handler).with_state(app_state))
+        .route("/upload", post(upload).layer(DefaultBodyLimit::disable()))
         .into_make_service_with_connect_info::<SocketAddr>();
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
@@ -33,6 +36,15 @@ impl Default for AppState {
         let (sender, _receiver) = broadcast::channel(32);
         AppState { sender }
     }
+}
+
+#[debug_handler]
+async fn upload(ConnectInfo(addr): ConnectInfo<SocketAddr>, body: Bytes) -> impl IntoResponse {
+    println!("{} accessed /upload", addr);
+    let mut file = File::create("stuff").await.unwrap();
+    file.write_all(&body).await.unwrap();
+
+    (StatusCode::OK, "File uploaded successfully")
 }
 
 #[debug_handler]
