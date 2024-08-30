@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 
 type PlayMessage = {
   media: PlayMessageMedia
@@ -18,6 +19,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   const playButton = document.getElementById('playButton') as HTMLButtonElement;
   playButton.addEventListener('click', async () => {
     invoke('send_play_message');
+  })
+
+  const unlistent = listen('updateClientCount',(payload) => {
+    
   })
 
 });

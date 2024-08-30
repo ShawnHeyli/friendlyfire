@@ -6,5 +6,6 @@ use std::env::set_var;
 fn main() {
     set_var("GDK_BACKEND", "x11");
     set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-    client_lib::run()
+
+    lib::run();
 }
