@@ -34,7 +34,7 @@ pub fn run() {
 async fn join_server(handle: AppHandle) {
     init_ws_connection(handle).await;
     // From here WS_CONNECTION is set
-    send_ws_message(Message::Text("update_client_count".to_string())).await;
+    send_ws_message(Message::Text("joined".to_string())).await;
     // After this client receives joined message and updates the client count
 }
 

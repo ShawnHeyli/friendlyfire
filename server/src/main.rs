@@ -66,10 +66,15 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
             msg = socket.recv() => {
                 if let Some(Ok(msg)) = msg {
                     match msg{
-                        Message::Text(_) => {
+                        Message::Text(ref text) => {
                             println!("Received socket: {:?}", &msg);
-                            tx.send(msg.clone()).unwrap();
-                            println!("Sent channel: {:?}", &msg);
+                            match text.as_str() {
+                                "joined" => {
+                                    let client_count = tx.receiver_count();
+                                    tx.send(Message::Text(format!("update_client_count;{}", client_count))).unwrap();
+                                },
+                                _ => unreachable!()
+                            }
                         },
                         Message::Binary(msg) =>
                             println!("Received socket: {:?}", &msg),
