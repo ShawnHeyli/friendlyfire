@@ -19,7 +19,7 @@ pub async fn init_ws_connection(handle: AppHandle) {
     *ws_connection = Some(write);
 
     init_keep_alive();
-    init_ws_listener(read, &handle);
+    init_ws_listener(read, handle);
 }
 
 fn init_keep_alive() {
@@ -39,10 +39,10 @@ fn init_keep_alive() {
     });
 }
 
-fn init_ws_listener(mut read: WebSocketSplitStream, handle: &AppHandle) {
+fn init_ws_listener(mut read: WebSocketSplitStream, handle: AppHandle) {
     tauri::async_runtime::spawn(async move {
         while let Some(Ok(message)) = read.next().await {
-            handle_message(message, handle);
+            handle_message(message, handle.clone()).await;
         }
     });
 }

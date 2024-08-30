@@ -7,5 +7,5 @@ fn main() {
     set_var("GDK_BACKEND", "x11");
     set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
 
-    lib::run();
+    client_lib::run();
 }

@@ -9,6 +9,10 @@ type PlayMessageMedia = {
   url: string
 }
 
+type JoinMessage = {
+  clientCount: number
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
   
   const joinButton = document.getElementById('joinButton') as HTMLButtonElement;
@@ -21,8 +25,11 @@ window.addEventListener("DOMContentLoaded", async () => {
     invoke('send_play_message');
   })
 
-  const unlistent = listen('updateClientCount',(payload) => {
-    
+
+  const unlisten = listen<JoinMessage>('updateClientCount',(data) => {
+    const payload: JoinMessage = data.payload;
+    const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
+    clientCounter.innerHTML = payload.clientCount.toString();
   })
 
 });
