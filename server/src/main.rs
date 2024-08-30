@@ -64,14 +64,25 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
     loop {
         tokio::select! {
             msg = socket.recv() => {
-                if let Some(Ok(Message::Text(msg))) = msg {
-                    println!("Received socket: {}", msg);
-                    tx.send(msg.clone()).unwrap();
-                    println!("Sent channel: {}", msg);
-                } else {
-                    break;
+                if let Some(Ok(msg)) = msg {
+                    match msg{
+                        Message::Text(msg) => {
+                            println!("Received socket: {}", msg);
+                            tx.send(msg.clone()).unwrap();
+                            println!("Sent channel: {}", msg);
+                        },
+                        Message::Binary(msg) =>
+                            println!("Received socket: {:?}", msg),
+                        Message::Ping(msg) =>
+                            println!("Received socket: {:?}", msg),
+                        Message::Pong(msg) =>
+                            println!("Received socket: {:?}", msg),
+                        Message::Close(msg) =>
+                            println!("Received socket: {:?}", msg),
+                    }
                 }
-            }
+            },
+
             msg = rx.recv() => {
                 if let Ok(msg) = msg {
                     println!("Received channel: {}", msg);
