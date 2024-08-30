@@ -17,7 +17,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   
   const joinButton = document.getElementById('joinButton') as HTMLButtonElement;
   joinButton.addEventListener('click', async () => {
-    invoke('join_server', { message: "can I join pwease ??" });
+    invoke('join_server');
+  })
+
+  const leaveButton = document.getElementById('leaveButton') as HTMLButtonElement;
+  leaveButton.addEventListener('click', async () => {
+    invoke('leave_server');
   })
 
   const playButton = document.getElementById('playButton') as HTMLButtonElement;

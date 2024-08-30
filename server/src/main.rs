@@ -69,7 +69,7 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
                         Message::Text(ref text) => {
                             println!("Received socket: {:?}", &msg);
                             match text.as_str() {
-                                "joined" => {
+                                "join" => {
                                     let client_count = tx.receiver_count();
                                     tx.send(Message::Text(format!("update_client_count;{}", client_count))).unwrap();
                                 },

@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use reqwest::{header::CONTENT_TYPE, Body};
 use tauri::{
     http::{HeaderMap, HeaderValue},
@@ -5,7 +7,10 @@ use tauri::{
 };
 use tauri_plugin_dialog::DialogExt;
 use tokio::fs::File;
-use tokio_tungstenite::tungstenite::Message;
+use tokio_tungstenite::tungstenite::{
+    protocol::{frame::coding::CloseCode, CloseFrame},
+    Message,
+};
 use tokio_util::codec::{BytesCodec, FramedRead};
 use ws::init::init_ws_connection;
 use ws::messages::send_ws_message;
@@ -23,6 +28,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             join_server,
+            leave_server,
             upload_file,
             send_ws_string
         ])
@@ -34,8 +40,17 @@ pub fn run() {
 async fn join_server(handle: AppHandle) {
     init_ws_connection(handle).await;
     // From here WS_CONNECTION is set
-    send_ws_message(Message::Text("joined".to_string())).await;
+    send_ws_message(Message::Text("join".to_string())).await;
     // After this client receives joined message and updates the client count
+}
+
+#[tauri::command]
+async fn leave_server(handle: AppHandle) {
+    send_ws_message(Message::Close(Some(CloseFrame {
+        code: CloseCode::Normal,
+        reason: Cow::Borrowed("User disconnecting"),
+    })))
+    .await;
 }
 
 #[tauri::command]
