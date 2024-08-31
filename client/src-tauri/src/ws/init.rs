@@ -31,7 +31,6 @@ pub async fn init_ws_connection(handle: AppHandle) {
 
         init_keep_alive();
         init_ws_listener(read, handle);
-        send_ws_message(Message::Text("join".to_string())).await;
     }
 }
 

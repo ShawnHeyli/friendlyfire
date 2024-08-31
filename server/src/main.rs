@@ -11,7 +11,11 @@ use axum::{
 };
 use axum_macros::debug_handler;
 use std::{net::SocketAddr, sync::Arc};
-use tokio::{fs::File, io::AsyncWriteExt, sync::broadcast};
+use tokio::{
+    fs::File,
+    io::AsyncWriteExt,
+    sync::broadcast::{self, Sender},
+};
 
 #[tokio::main]
 async fn main() {
@@ -61,18 +65,17 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
     let mut rx = app_state.sender.subscribe();
     let tx = app_state.sender.clone();
 
+    handle_client_connect(tx.clone());
+
     loop {
         tokio::select! {
             msg = socket.recv() => {
-                if let Some(Ok(msg)) = msg {
+                println!("{:?}", msg);
+                if let Some(Ok(msg)) = msg{
                     match msg{
                         Message::Text(ref text) => {
                             println!("Received socket: {:?}", &msg);
                             match text.as_str() {
-                                "join" => {
-                                    let client_count = tx.receiver_count();
-                                    tx.send(Message::Text(format!("update_client_count;{}", client_count))).unwrap();
-                                },
                                 _ => unreachable!()
                             }
                         },
@@ -82,9 +85,16 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
                             println!("Received socket: {:?}", &msg),
                         Message::Pong(msg) =>
                             println!("Received socket: {:?}", &msg),
-                        Message::Close(msg) =>
-                            println!("Received socket: {:?}", &msg),
+                        Message::Close(msg) => {
+                            println!("Received socket: {:?}", &msg);
+                            handle_client_disconnect(tx.clone());
+                            drop(rx);
+                            drop(tx);
+                            break;
+                        }
                     }
+                } else {
+                    handle_client_disconnect(tx.clone());
                 }
             },
 
@@ -97,4 +107,22 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
             }
         }
     }
+}
+
+fn handle_client_connect(tx: Sender<Message>) {
+    let client_count = tx.receiver_count();
+    tx.send(Message::Text(format!(
+        "update_client_count;{}",
+        client_count
+    )))
+    .unwrap();
+}
+
+fn handle_client_disconnect(tx: Sender<Message>) {
+    let client_count = tx.receiver_count();
+    tx.send(Message::Text(format!(
+        "update_client_count;{}",
+        client_count - 1
+    )))
+    .unwrap();
 }
