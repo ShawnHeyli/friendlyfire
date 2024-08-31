@@ -63,8 +63,11 @@ pub async fn handle_message(message: Message, handle: AppHandle) {
 }
 
 pub async fn send_ws_message(message: Message) {
-    if let Some(ws) = WS_CONNECTION.lock().await.as_mut() {
-        ws.send(message).await.unwrap();
+    match WS_CONNECTION.lock().await.as_mut() {
+        Some(ws) => {
+            ws.send(message).await.unwrap();
+        }
+        None => {}
     }
 }
 
