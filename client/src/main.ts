@@ -1,12 +1,8 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 
-type PlayMessage = {
-  media: PlayMessageMedia
-}
-
-type PlayMessageMedia = {
-  url: string
+type PlayImageMessage = {
+  remotePath: string
 }
 
 type JoinMessage = {
@@ -27,14 +23,19 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const playButton = document.getElementById('playButton') as HTMLButtonElement;
   playButton.addEventListener('click', async () => {
-    invoke('send_play_message');
+    invoke('play_image');
   })
 
 
-  const unlisten = listen<JoinMessage>('updateClientCount',(data) => {
+  listen<JoinMessage>('updateClientCount',(data) => {
     const payload: JoinMessage = data.payload;
     const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
     clientCounter.innerHTML = payload.clientCount.toString();
+  })
+
+  listen<PlayImageMessage>('playImage',(data) => {
+    const payload: PlayImageMessage= data.payload;
+    console.log(payload);
   })
 
 });

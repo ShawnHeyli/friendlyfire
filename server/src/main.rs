@@ -10,11 +10,13 @@ use axum::{
     Router,
 };
 use axum_macros::debug_handler;
-use std::{net::SocketAddr, sync::Arc};
+use rand::distributions::{Alphanumeric, DistString};
+use std::{net::SocketAddr, sync::Arc, time::Duration};
 use tokio::{
-    fs::File,
+    fs::{self, File},
     io::AsyncWriteExt,
     sync::broadcast::{self, Sender},
+    time::sleep,
 };
 
 #[tokio::main]
@@ -45,10 +47,23 @@ impl Default for AppState {
 #[debug_handler]
 async fn upload(ConnectInfo(addr): ConnectInfo<SocketAddr>, body: Bytes) -> impl IntoResponse {
     println!("{} accessed /upload", addr);
-    let mut file = File::create("stuff").await.unwrap();
+    let filename = Alphanumeric.sample_string(&mut rand::thread_rng(), 24);
+    let mut file = File::create(format!("uploads/{}", &filename))
+        .await
+        .unwrap();
     file.write_all(&body).await.unwrap();
+    // Delete the file after 2min
+    let filename_clone = filename.clone();
+    tokio::spawn(async {
+        let filename = filename_clone;
+        sleep(Duration::from_secs(120)).await;
+        fs::remove_file(format!("uploads/{}", &filename))
+            .await
+            .expect("Unable to delete file");
+        println!("File deleted: {}", &filename);
+    });
 
-    (StatusCode::OK, "File uploaded successfully")
+    (StatusCode::OK, filename)
 }
 
 #[debug_handler]

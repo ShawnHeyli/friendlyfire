@@ -6,25 +6,13 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 use tokio_tungstenite::tungstenite::Message;
 
+use crate::play::handle_image;
+
 use super::WS_CONNECTION;
 
 enum WsMessage {
     UpdateClientCount(u32),
-}
-
-trait MessageExtractor {
-    type Output;
-    fn extract_value(&self) -> Self::Output;
-}
-
-impl MessageExtractor for WsMessage {
-    type Output = Result<u32, String>;
-
-    fn extract_value(&self) -> Self::Output {
-        match self {
-            WsMessage::UpdateClientCount(count) => Ok(*count),
-        }
-    }
+    PlayImage(String),
 }
 
 impl FromStr for WsMessage {
@@ -43,6 +31,13 @@ impl FromStr for WsMessage {
                     .map_err(|_| "Invalid client count")?;
                 Ok(WsMessage::UpdateClientCount(count))
             }
+            "play_image" => {
+                let path = parts[1]
+                    .parse::<String>()
+                    .map(|_| "Problem ocurred while getting image path")
+                    .unwrap();
+                Ok(WsMessage::PlayImage(path.to_owned()))
+            }
             _ => Err("Unknown message type"),
         }
     }
@@ -52,7 +47,8 @@ pub async fn handle_message(message: Message, handle: AppHandle) {
     println!("{:?}", message);
     match message {
         Message::Text(msg) => match WsMessage::from_str(&msg).unwrap() {
-            WsMessage::UpdateClientCount(count) => update_client_count(count, handle).await,
+            WsMessage::UpdateClientCount(count) => update_client_count(count, handle),
+            WsMessage::PlayImage(path) => handle_image(path, handle),
         },
         Message::Binary(data) => println!("Received binary data of size {}", data.len()),
         Message::Ping(data) => println!("Received a ping {:?}", data),
@@ -63,11 +59,8 @@ pub async fn handle_message(message: Message, handle: AppHandle) {
 }
 
 pub async fn send_ws_message(message: Message) {
-    match WS_CONNECTION.lock().await.as_mut() {
-        Some(ws) => {
-            ws.send(message).await.unwrap();
-        }
-        None => {}
+    if let Some(ws) = WS_CONNECTION.lock().await.as_mut() {
+        ws.send(message).await.unwrap();
     }
 }
 
@@ -77,7 +70,7 @@ struct ClientCount {
     client_count: u32,
 }
 
-async fn update_client_count(client_count: u32, handle: AppHandle) {
+fn update_client_count(client_count: u32, handle: AppHandle) {
     info!("Updated client count");
     handle
         .emit("updateClientCount", ClientCount { client_count })

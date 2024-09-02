@@ -1,15 +1,10 @@
-use reqwest::{header::CONTENT_TYPE, Body};
-use tauri::{
-    http::{HeaderMap, HeaderValue},
-    AppHandle,
-};
-use tauri_plugin_dialog::DialogExt;
-use tokio::fs::File;
+use play::{pick_image, upload_file};
+use tauri::AppHandle;
 use tokio_tungstenite::tungstenite::Message;
-use tokio_util::codec::{BytesCodec, FramedRead};
 use ws::init::{close_ws_connection, init_ws_connection};
 use ws::messages::send_ws_message;
 
+pub mod play;
 pub mod ws;
 
 pub fn run() {
@@ -24,8 +19,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             join_server,
             leave_server,
-            upload_file,
-            send_ws_string
+            send_ws_string,
+            play_image
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -49,28 +44,10 @@ async fn send_ws_string(message: String) {
 }
 
 #[tauri::command]
-async fn upload_file(handle: AppHandle) {
-    let file = handle
-        .dialog()
-        .file()
-        .add_filter("Images *.jpg *.jpeg", &["jpg", "jpeg"])
-        .blocking_pick_file();
-    if let Some(file) = file {
-        let client = reqwest::Client::new();
-        let mut headers = HeaderMap::new();
-        if let Some(mime_type) = file.mime_type {
-            headers.insert(CONTENT_TYPE, HeaderValue::from_str(&mime_type).unwrap());
-        }
-        client
-            .post("http://localhost:3000/upload")
-            .headers(headers)
-            .body({
-                let stream =
-                    FramedRead::new(File::open(file.path).await.unwrap(), BytesCodec::new());
-                Body::wrap_stream(stream)
-            })
-            .send()
-            .await
-            .unwrap();
+async fn play_image(handle: AppHandle) {
+    if let Some(file) = pick_image(handle) {
+        let response: reqwest::Response = upload_file(file).await.unwrap();
+        println!("{:?}", response.text().await.unwrap());
     }
+    // Once the image is uploaded the server will send a confirmation picked up by handle_message()
 }
