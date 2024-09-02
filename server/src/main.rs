@@ -1,8 +1,8 @@
 use axum::{
-    body::Bytes,
+    body::{Body, Bytes},
     extract::{
         ws::{Message, WebSocket},
-        ConnectInfo, DefaultBodyLimit, State, WebSocketUpgrade,
+        ConnectInfo, DefaultBodyLimit, Path, State, WebSocketUpgrade,
     },
     http::StatusCode,
     response::{Html, IntoResponse},
@@ -18,6 +18,7 @@ use tokio::{
     sync::broadcast::{self, Sender},
     time::sleep,
 };
+use tokio_util::io::ReaderStream;
 
 #[tokio::main]
 async fn main() {
@@ -27,6 +28,7 @@ async fn main() {
         .route("/", get(|| async { Html::from("Video Sync Server") }))
         .route("/ws", get(ws_handler).with_state(app_state))
         .route("/upload", post(upload).layer(DefaultBodyLimit::disable()))
+        .route("/uploads/:asset", get(serve_asset))
         .into_make_service_with_connect_info::<SocketAddr>();
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
@@ -64,6 +66,25 @@ async fn upload(ConnectInfo(addr): ConnectInfo<SocketAddr>, body: Bytes) -> impl
     });
 
     (StatusCode::OK, filename)
+}
+
+async fn serve_asset(
+    Path(path): Path<String>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+) -> impl IntoResponse {
+    println!("{} accessed /uploads/{}", addr, path);
+    let path = format!("uploads/{}", path);
+    match File::open(path).await {
+        Ok(file) => {
+            let stream = ReaderStream::new(file);
+            let body = Body::from_stream(stream);
+            (StatusCode::OK, body)
+        }
+        Err(_) => (
+            StatusCode::NOT_FOUND,
+            Body::from("File not found".to_string()),
+        ),
+    }
 }
 
 #[debug_handler]

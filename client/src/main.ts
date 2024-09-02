@@ -36,6 +36,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   listen<PlayImageMessage>('playImage',(data) => {
     const payload: PlayImageMessage= data.payload;
     console.log(payload);
+    displayMessage(payload);
   })
 
 });
@@ -49,27 +50,23 @@ function generateImg(src: string) {
   return '<img id="message-img" ' + ' src="' + src + '" />';
 }
 
-function displayContent(message: PlayMessage) {
+function displayContent(message: PlayImageMessage) {
   var element = document.getElementById('message') as HTMLDivElement;
 
   element.innerHTML = '';
-  element.innerHTML = generateImg(message.media.url);
+  element.innerHTML = generateImg(message.remotePath);
 }
 
 var timeout: number | undefined;
-function displayMessage(message: PlayMessage) {
+function displayMessage(message: PlayImageMessage) {
+  console.log(message);
   if (timeout) {
     clearTimeout(timeout);
   }
 
   timeout = setTimeout(() => {
     clearMessage()
-  }, 4 * 1000);
-
-  var elementMessage = document.getElementById('message') as HTMLDivElement;
-  var elementText = document.getElementById('message-text') as HTMLParagraphElement;
-  elementMessage.innerHTML = '';
-  elementText.style.display = 'none';
+  }, 30 * 1000);
 
   displayContent(message);
 }

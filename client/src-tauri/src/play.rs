@@ -8,7 +8,7 @@ use tauri_plugin_dialog::{DialogExt, FileResponse};
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-pub fn pick_image(handle: AppHandle) -> Option<FileResponse> {
+pub fn pick_image(handle: &AppHandle) -> Option<FileResponse> {
     handle
         .dialog()
         .file()

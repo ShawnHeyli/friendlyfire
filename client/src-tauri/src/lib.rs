@@ -1,5 +1,7 @@
+use log::debug;
 use play::{pick_image, upload_file};
-use tauri::AppHandle;
+use serde::Serialize;
+use tauri::{AppHandle, Emitter, Url};
 use tokio_tungstenite::tungstenite::Message;
 use ws::init::{close_ws_connection, init_ws_connection};
 use ws::messages::send_ws_message;
@@ -43,11 +45,28 @@ async fn send_ws_string(message: String) {
     send_ws_message(Message::Text(message)).await;
 }
 
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PlayImageMessage {
+    remote_path: Url,
+}
+
 #[tauri::command]
 async fn play_image(handle: AppHandle) {
-    if let Some(file) = pick_image(handle) {
+    if let Some(file) = pick_image(&handle) {
         let response: reqwest::Response = upload_file(file).await.unwrap();
-        println!("{:?}", response.text().await.unwrap());
+        let remote_path = Url::parse(
+            format!(
+                "http://localhost:3000/uploads/{}",
+                response.text().await.unwrap()
+            )
+            .as_str(),
+        )
+        .unwrap();
+        debug!("Uploaded file can be accessed at {}", remote_path);
+        handle
+            .emit("playImage", PlayImageMessage { remote_path })
+            .unwrap();
     }
     // Once the image is uploaded the server will send a confirmation picked up by handle_message()
 }
