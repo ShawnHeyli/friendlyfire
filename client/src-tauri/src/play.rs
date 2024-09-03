@@ -1,3 +1,4 @@
+use log::debug;
 use reqwest::{header::CONTENT_TYPE, Body};
 use serde::Serialize;
 use tauri::{
@@ -34,12 +35,15 @@ pub async fn upload_file(file: FileResponse) -> Result<reqwest::Response, reqwes
 }
 
 #[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct ImagePayload {
     remote_path: Url,
 }
 
 pub fn handle_image(path: String, handle: AppHandle) {
-    let remote_path = Url::parse(format!("http://localhost:3000/{}", path).as_str()).unwrap();
+    debug!("{}", path);
+    let remote_path =
+        Url::parse(format!("http://localhost:3000/uploads/{}", path).as_str()).unwrap();
     handle
         .emit("playImage", ImagePayload { remote_path })
         .unwrap();

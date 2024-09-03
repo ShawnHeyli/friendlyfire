@@ -34,7 +34,7 @@ impl FromStr for WsMessage {
             "play_image" => {
                 let path = parts[1]
                     .parse::<String>()
-                    .map(|_| "Problem ocurred while getting image path")
+                    .map_err(|_| "Problem ocurred while getting image path")
                     .unwrap();
                 Ok(WsMessage::PlayImage(path.to_owned()))
             }

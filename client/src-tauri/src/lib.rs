@@ -54,19 +54,7 @@ struct PlayImageMessage {
 #[tauri::command]
 async fn play_image(handle: AppHandle) {
     if let Some(file) = pick_image(&handle) {
-        let response: reqwest::Response = upload_file(file).await.unwrap();
-        let remote_path = Url::parse(
-            format!(
-                "http://localhost:3000/uploads/{}",
-                response.text().await.unwrap()
-            )
-            .as_str(),
-        )
-        .unwrap();
-        debug!("Uploaded file can be accessed at {}", remote_path);
-        handle
-            .emit("playImage", PlayImageMessage { remote_path })
-            .unwrap();
+        upload_file(file).await.unwrap();
+        // Once the image is uploaded the server will send a confirmation picked up by handle_message()
     }
-    // Once the image is uploaded the server will send a confirmation picked up by handle_message()
 }
