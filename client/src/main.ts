@@ -3,6 +3,7 @@ import { listen } from '@tauri-apps/api/event';
 
 type PlayImageMessage = {
   remotePath: string
+  text: string
 }
 
 type JoinMessage = {
@@ -10,7 +11,7 @@ type JoinMessage = {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
-  
+
   const joinButton = document.getElementById('joinButton') as HTMLButtonElement;
   joinButton.addEventListener('click', async () => {
     invoke('join_server');
@@ -23,27 +24,41 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const playButton = document.getElementById('playButton') as HTMLButtonElement;
   playButton.addEventListener('click', async () => {
-    invoke('play_image');
+    const textInput = document.getElementById('textInput') as HTMLInputElement
+    const text = textInput.value;
+    invoke('play_image', { text });
   })
 
 
-  listen<JoinMessage>('updateClientCount',(data) => {
+  listen<JoinMessage>('updateClientCount', (data) => {
     const payload: JoinMessage = data.payload;
     const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
     clientCounter.innerHTML = payload.clientCount.toString();
   })
 
-  listen<PlayImageMessage>('playImage',(data) => {
-    const payload: PlayImageMessage= data.payload;
+  listen<PlayImageMessage>('playImage', (data) => {
+    const payload: PlayImageMessage = data.payload;
     console.log(payload);
     displayMessage(payload);
   })
 
 });
 
+function displayText(text: string) {
+  var element = document.getElementById('message-text') as HTMLSpanElement; 
+  element.style.display = 'none';
+
+  if (text) {
+    element.innerHTML = text;
+    element.style.display = 'block';
+  }
+}
+
 function clearMessage() {
   const element = document.getElementById('message') as HTMLDivElement;
+  const element_text = document.getElementById('message-text') as HTMLDivElement;
   element.style.display = "none";
+  element_text.style.display = "none";
 }
 
 function generateImg(src: string) {
@@ -53,7 +68,6 @@ function generateImg(src: string) {
 function displayContent(message: PlayImageMessage) {
   var element = document.getElementById('message') as HTMLDivElement;
 
-  element.innerHTML = '';
   element.innerHTML = generateImg(message.remotePath);
 }
 
@@ -66,7 +80,8 @@ function displayMessage(message: PlayImageMessage) {
 
   timeout = setTimeout(() => {
     clearMessage()
-  }, 30 * 1000);
+  }, 8 * 1000);
 
+  displayText(message.text)
   displayContent(message);
 }

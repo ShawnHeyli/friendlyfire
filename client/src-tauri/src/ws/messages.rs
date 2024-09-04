@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use futures_util::SinkExt;
-use log::info;
+use log::{debug, info};
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 use tokio_tungstenite::tungstenite::Message;
@@ -12,7 +12,7 @@ use super::WS_CONNECTION;
 
 enum WsMessage {
     UpdateClientCount(u32),
-    PlayImage(String),
+    PlayImage(String, String),
 }
 
 impl FromStr for WsMessage {
@@ -20,9 +20,6 @@ impl FromStr for WsMessage {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts: Vec<&str> = s.split(';').collect();
-        if parts.len() != 2 {
-            return Err("Invalid message format");
-        }
 
         match parts[0] {
             "update_client_count" => {
@@ -36,7 +33,11 @@ impl FromStr for WsMessage {
                     .parse::<String>()
                     .map_err(|_| "Problem ocurred while getting image path")
                     .unwrap();
-                Ok(WsMessage::PlayImage(path.to_owned()))
+                let text = parts[2]
+                    .parse::<String>()
+                    .map_err(|_| "Problem ocurred while getting image text")
+                    .unwrap();
+                Ok(WsMessage::PlayImage(path.to_owned(), text.to_owned()))
             }
             _ => Err("Unknown message type"),
         }
@@ -44,22 +45,18 @@ impl FromStr for WsMessage {
 }
 
 pub async fn handle_message(message: Message, handle: AppHandle) {
-    println!("{:?}", message);
-    match message {
-        Message::Text(msg) => match WsMessage::from_str(&msg).unwrap() {
+    debug!("Received {:?} from server", message);
+    if let Message::Text(msg) = message {
+        match WsMessage::from_str(&msg).unwrap() {
             WsMessage::UpdateClientCount(count) => update_client_count(count, handle),
-            WsMessage::PlayImage(path) => handle_image(path, handle),
-        },
-        Message::Binary(data) => println!("Received binary data of size {}", data.len()),
-        Message::Ping(data) => println!("Received a ping {:?}", data),
-        Message::Pong(data) => println!("Received a pong {:?}", data),
-        Message::Close(data) => println!("Received a close frame {:?}", data),
-        Message::Frame(_) => unreachable!(),
+            WsMessage::PlayImage(path, text) => handle_image(path, text, handle),
+        }
     }
 }
 
 pub async fn send_ws_message(message: Message) {
     if let Some(ws) = WS_CONNECTION.lock().await.as_mut() {
+        debug!("Sent '{:?}' to the server", &message);
         ws.send(message).await.unwrap();
     }
 }

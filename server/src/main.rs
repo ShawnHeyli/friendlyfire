@@ -28,7 +28,6 @@ async fn main() {
         .route("/", get(|| async { Html::from("Video Sync Server") }))
         .route("/ws", get(ws_handler).with_state(app_state.clone()))
         .route("/upload", post(upload).layer(DefaultBodyLimit::disable()))
-        .with_state(app_state)
         .route("/uploads/:asset", get(serve_asset))
         .into_make_service_with_connect_info::<SocketAddr>();
 
@@ -48,11 +47,7 @@ impl Default for AppState {
 }
 
 #[debug_handler]
-async fn upload(
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    State(app_state): State<Arc<AppState>>,
-    body: Bytes,
-) -> impl IntoResponse {
+async fn upload(ConnectInfo(addr): ConnectInfo<SocketAddr>, body: Bytes) -> impl IntoResponse {
     println!("{} accessed /upload", addr);
     let filename = Alphanumeric.sample_string(&mut rand::thread_rng(), 24);
     let mut file = File::create(format!("uploads/{}", &filename))
@@ -70,11 +65,7 @@ async fn upload(
         println!("File deleted: {}", &filename);
     });
 
-    let tx = app_state.sender.clone();
-    tx.send(Message::Text(format!("play_image;{}", filename)))
-        .unwrap();
-
-    StatusCode::OK
+    (StatusCode::OK, filename)
 }
 
 async fn serve_asset(
@@ -118,11 +109,9 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
                 println!("{:?}", msg);
                 if let Some(Ok(msg)) = msg{
                     match msg{
-                        Message::Text(ref text) => {
+                        Message::Text(msg) => {
                             println!("Received socket: {:?}", &msg);
-                            match text.as_str() {
-                                _ => unreachable!()
-                            }
+                            tx.send(Message::Text(msg)).unwrap();
                         },
                         Message::Binary(msg) =>
                             println!("Received socket: {:?}", &msg),
