@@ -6,14 +6,17 @@ use tauri::AppHandle;
 use tokio::time;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 
-use super::{messages::handle_message, WebSocketSplitSink, WebSocketSplitStream, WS_CONNECTION};
+use super::{
+    messages::handle_message, WebSocketError, WebSocketSplitSink, WebSocketSplitStream,
+    WS_CONNECTION,
+};
 
-pub async fn init_ws_connection(handle: AppHandle) {
+pub async fn init_ws_connection(handle: AppHandle) -> Result<(), WebSocketError> {
     if WS_CONNECTION.lock().await.is_none() {
         let (ws, _) = connect_async("ws://localhost:3000/ws")
             .await
             .inspect(|(_, _)| info!("Successfully connected to the server"))
-            .unwrap();
+            .map_err(WebSocketError::ConnectionError)?;
         let (write, read): (WebSocketSplitSink, WebSocketSplitStream) = ws.split();
 
         let mut ws_connection = WS_CONNECTION.lock().await;
@@ -23,6 +26,7 @@ pub async fn init_ws_connection(handle: AppHandle) {
         init_keep_alive();
         init_ws_listener(read, handle);
     }
+    Ok(())
 }
 
 fn init_keep_alive() {

@@ -29,25 +29,27 @@ pub fn run() {
 
 #[tauri::command]
 async fn join_server(handle: AppHandle) {
-    init_ws_connection(handle).await;
+    init_ws_connection(handle).await.unwrap();
     // From here WS_CONNECTION is set
     // After this client receives joined message and updates the client count
 }
 
 #[tauri::command]
 async fn leave_server() {
-    close_ws_connection().await;
+    close_ws_connection().await.unwrap();
 }
 
 #[tauri::command]
 async fn send_ws_string(message: String) {
-    send_ws_message(Message::Text(message)).await;
+    send_ws_message(Message::Text(message)).await.unwrap();
 }
 
 #[tauri::command]
 async fn play_image(handle: AppHandle, text: String) {
     if let Some(file) = pick_image(&handle) {
         let filename = upload_file(file).await;
-        send_ws_message(Message::Text(format!("play_image;{};{}", filename, text))).await
+        send_ws_message(Message::Text(format!("play_image;{};{}", filename, text)))
+            .await
+            .unwrap()
     }
 }
