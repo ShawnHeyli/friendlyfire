@@ -3,6 +3,11 @@ type PlayImageMessage = {
   text: string
 }
 
+type PlayVideoMessage = {
+  remotePath: string
+  text: string
+}
+
 type JoinMessage = {
   clientCount: number
 }

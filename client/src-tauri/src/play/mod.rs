@@ -1,21 +1,11 @@
 pub mod image;
+pub mod video;
 
 use reqwest::{header::CONTENT_TYPE, Body};
-use tauri::{
-    http::{HeaderMap, HeaderValue},
-    AppHandle,
-};
-use tauri_plugin_dialog::{DialogExt, FileResponse};
+use tauri::http::{HeaderMap, HeaderValue};
+use tauri_plugin_dialog::FileResponse;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
-
-pub fn pick_image(handle: &AppHandle) -> Option<FileResponse> {
-    handle
-        .dialog()
-        .file()
-        .add_filter("Images *.jpg *.jpeg, *.png", &["jpg", "jpeg", "png"])
-        .blocking_pick_file()
-}
 
 pub async fn upload_file(file: FileResponse) -> String {
     let client = reqwest::Client::new();

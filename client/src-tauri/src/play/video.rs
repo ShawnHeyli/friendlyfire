@@ -8,20 +8,20 @@ use crate::ws::messages::send_ws_message;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ImagePayload {
+pub struct VideoPayload {
     remote_path: Url,
     text: String,
 }
 
-impl ImagePayload {
+impl VideoPayload {
     pub fn new(remote_path: Url, text: String) -> Self {
         Self { remote_path, text }
     }
 
     pub async fn send(&self) {
-        debug!("Sent: {}", self.remote_path);
+        debug!("{}", self.remote_path);
         send_ws_message(Message::Text(format!(
-            "play_image;{};{}",
+            "play_video;{};{}",
             self.remote_path, self.text
         )))
         .await
@@ -29,26 +29,26 @@ impl ImagePayload {
     }
 
     pub fn emit(&self, handle: &AppHandle) {
-        debug!("Emit: {}", self.remote_path);
+        debug!("{}", self.remote_path);
         if let Err(e) = handle.emit(
-            "playImage",
-            ImagePayload {
+            "playVideo",
+            VideoPayload {
                 remote_path: self.remote_path.clone(),
                 text: self.text.clone(),
             },
         ) {
-            log::error!("Failed to emit playImage event: {:?}", e);
+            log::error!("Failed to emit playVideo event: {:?}", e);
         }
     }
 }
 
-pub fn pick_image(handle: &AppHandle) -> Option<FileResponse> {
+pub fn pick_video(handle: &AppHandle) -> Option<FileResponse> {
     handle
         .dialog()
         .file()
         .add_filter(
-            "Images *.BMP *.GIF *.JPEG *.PNG *.WebP *.SVG *.AVIF",
-            &["bmp", "gif", "jpeg", "png", "wEBp", "svg", "avif"],
+            "Video *.3GP *.3G2 *.ASF *.AVI *.DivX *.M2V *.M3U *.M3U8 *.M4V *.MKV *.MOV *.MP4 *.MPEG *.OGV *.QVT *.RAM *.RM *.VOB *.WebM *.WMV *.XAP",
+            &["3gp" ,"3g2" ,"asf" ,"avi" ,"dIVx" ,"m2v" ,"m3u" ,"m3u8" ,"m4v" ,"mkv" ,"mov" ,"mp4" ,"mpeg" ,"ogv" ,"qvt" ,"ram" ,"rm" ,"vob" ,"wEBm" ,"wmv" ,"xap"],
         )
         .blocking_pick_file()
 }

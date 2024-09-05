@@ -1,50 +1,47 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { displayMessage } from './displayMessage';
+import { displayImage, displayVideo } from './displayMessage';
 
 window.addEventListener("DOMContentLoaded", async () => {
-  setupJoinButton();
-  setupLeaveButton();
-  setupPlayButton();
-  setupClientCountListener();
-  setupPlayImageListener();
-});
-
-function setupJoinButton() {
   const joinButton = document.getElementById('joinButton') as HTMLButtonElement;
   joinButton.addEventListener('click', async () => {
     invoke('join_server');
   });
-}
 
-function setupLeaveButton() {
   const leaveButton = document.getElementById('leaveButton') as HTMLButtonElement;
   leaveButton.addEventListener('click', async () => {
     invoke('leave_server');
   });
-}
 
-function setupPlayButton() {
-  const playButton = document.getElementById('playButton') as HTMLButtonElement;
-  playButton.addEventListener('click', async () => {
+  const playImageButton = document.getElementById('playImageButton') as HTMLButtonElement;
+  playImageButton.addEventListener('click', async () => {
     const textInput = document.getElementById('textInput') as HTMLInputElement;
     const text = textInput.value;
     invoke('play_image', { text });
   });
-}
 
-function setupClientCountListener() {
+  const playVideoButton = document.getElementById('playVideoButton') as HTMLButtonElement;
+  playVideoButton.addEventListener('click', async () => {
+    const textInput = document.getElementById('textInput') as HTMLInputElement;
+    const text = textInput.value;
+    invoke('play_video', { text });
+  });
+
   listen<JoinMessage>('updateClientCount', (data) => {
+    console.log(data)
     const payload: JoinMessage = data.payload;
     const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
     clientCounter.innerHTML = payload.clientCount.toString();
   });
-}
 
-function setupPlayImageListener() {
   listen<PlayImageMessage>('playImage', (data) => {
     const payload: PlayImageMessage = data.payload;
-    console.log(payload);
-    displayMessage(payload);
+    displayImage(payload);
   });
-}
+
+  listen<PlayVideoMessage>('playVideo', (data) => {
+    const payload: PlayVideoMessage = data.payload;
+    displayVideo(payload);
+  });
+
+});

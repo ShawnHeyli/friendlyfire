@@ -1,5 +1,5 @@
 function displayText(text: string) {
-  var element = document.getElementById('message-text') as HTMLSpanElement; 
+  var element = document.getElementById('message-text') as HTMLSpanElement;
   element.style.display = 'none';
 
   if (text) {
@@ -15,18 +15,26 @@ function clearMessage() {
   element_text.style.display = "none";
 }
 
-function generateImg(src: string) {
-  return '<img id="message-img" ' + ' src="' + src + '" />';
+function generateImage(src: string) {
+  var element = document.getElementById('message') as HTMLDivElement;
+  element.style.display = 'block';
+  element.innerHTML = '<img id="message-img" ' + ' src="' + src + '" />'
 }
 
-function displayContent(message: PlayImageMessage) {
+function generateVideo(src: string) {
   var element = document.getElementById('message') as HTMLDivElement;
+  element.style.display = 'block';
+  element.innerHTML = '<video id="message-video" src="' + src + '" />';
 
-  element.innerHTML = generateImg(message.remotePath);
+  const video = document.getElementById("message-video") as HTMLVideoElement;
+  video.play()
+  video.addEventListener("ended", () => {
+    clearMessage();
+  });
 }
 
 var timeout: number | undefined;
-export function displayMessage(message: PlayImageMessage) {
+export function displayImage(message: PlayImageMessage) {
   console.log(message);
   if (timeout) {
     clearTimeout(timeout);
@@ -37,5 +45,11 @@ export function displayMessage(message: PlayImageMessage) {
   }, 8 * 1000);
 
   displayText(message.text)
-  displayContent(message);
+  generateImage(message.remotePath);
+}
+
+export function displayVideo(message: PlayVideoMessage) {
+  console.log(message);
+  displayText(message.text)
+  generateVideo(message.remotePath);
 }

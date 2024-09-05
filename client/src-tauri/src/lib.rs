@@ -1,5 +1,7 @@
-use play::{pick_image, upload_file};
-use tauri::AppHandle;
+use play::image::{pick_image, ImagePayload};
+use play::upload_file;
+use play::video::{pick_video, VideoPayload};
+use tauri::{AppHandle, Url};
 use tokio_tungstenite::tungstenite::Message;
 use ws::close::close_ws_connection;
 use ws::init::init_ws_connection;
@@ -21,7 +23,8 @@ pub fn run() {
             join_server,
             leave_server,
             send_ws_string,
-            play_image
+            play_image,
+            play_video
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -47,9 +50,21 @@ async fn send_ws_string(message: String) {
 #[tauri::command]
 async fn play_image(handle: AppHandle, text: String) {
     if let Some(file) = pick_image(&handle) {
-        let filename = upload_file(file).await;
-        send_ws_message(Message::Text(format!("play_image;{};{}", filename, text)))
-            .await
-            .unwrap()
+        let remote_path = upload_file(file).await;
+        let remote_path =
+            Url::parse(format!("http://localhost:3000/uploads/{}", remote_path).as_str()).unwrap();
+        let payload = ImagePayload::new(remote_path, text.clone());
+        payload.send().await;
+    }
+}
+
+#[tauri::command]
+async fn play_video(handle: AppHandle, text: String) {
+    if let Some(file) = pick_video(&handle) {
+        let remote_path = upload_file(file).await;
+        let remote_path =
+            Url::parse(format!("http://localhost:3000/uploads/{}", remote_path).as_str()).unwrap();
+        let payload = VideoPayload::new(remote_path, text.clone());
+        payload.send().await;
     }
 }

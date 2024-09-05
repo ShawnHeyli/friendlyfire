@@ -2,7 +2,6 @@ use std::fmt;
 use std::sync::Arc;
 
 use futures_util::stream::{SplitSink, SplitStream};
-use reqwest::Error as ReqwestError;
 use tokio::{net::TcpStream, sync::Mutex};
 use tokio_tungstenite::tungstenite::Error as TungsteniteError;
 use tokio_tungstenite::{tungstenite::Message, MaybeTlsStream, WebSocketStream};
