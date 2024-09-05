@@ -6,7 +6,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::play::handle_image;
+use crate::play::image::handle_image;
 
 use super::WS_CONNECTION;
 

@@ -4,6 +4,7 @@ use futures_util::stream::{SplitSink, SplitStream};
 use tokio::{net::TcpStream, sync::Mutex};
 use tokio_tungstenite::{tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
+pub mod close;
 pub mod init;
 pub mod messages;
 

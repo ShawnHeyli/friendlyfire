@@ -1,21 +1,12 @@
-use std::{borrow::Cow, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 
 use futures_util::{SinkExt, StreamExt};
 use log::info;
 use tauri::AppHandle;
 use tokio::time;
-use tokio_tungstenite::{
-    connect_async,
-    tungstenite::{
-        protocol::{frame::coding::CloseCode, CloseFrame},
-        Message,
-    },
-};
+use tokio_tungstenite::{connect_async, tungstenite::Message};
 
-use super::{
-    messages::{handle_message, send_ws_message},
-    WebSocketSplitSink, WebSocketSplitStream, WS_CONNECTION,
-};
+use super::{messages::handle_message, WebSocketSplitSink, WebSocketSplitStream, WS_CONNECTION};
 
 pub async fn init_ws_connection(handle: AppHandle) {
     if WS_CONNECTION.lock().await.is_none() {
@@ -57,17 +48,4 @@ fn init_ws_listener(mut read: WebSocketSplitStream, handle: AppHandle) {
             handle_message(message, handle.clone()).await;
         }
     });
-}
-
-pub async fn close_ws_connection() {
-    if WS_CONNECTION.lock().await.is_some() {
-        send_ws_message(Message::Close(Some(CloseFrame {
-            code: CloseCode::Normal,
-            reason: Cow::Borrowed("User disconnecting"),
-        })))
-        .await;
-
-        let mut ws_connection = WS_CONNECTION.lock().await;
-        *ws_connection = None;
-    }
 }

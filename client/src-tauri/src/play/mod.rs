@@ -1,9 +1,9 @@
-use log::debug;
+pub mod image;
+
 use reqwest::{header::CONTENT_TYPE, Body};
-use serde::Serialize;
 use tauri::{
     http::{HeaderMap, HeaderValue},
-    AppHandle, Emitter, Url,
+    AppHandle,
 };
 use tauri_plugin_dialog::{DialogExt, FileResponse};
 use tokio::fs::File;
@@ -34,20 +34,4 @@ pub async fn upload_file(file: FileResponse) -> String {
         .await
         .unwrap();
     response.text().await.unwrap()
-}
-
-#[derive(Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct ImagePayload {
-    remote_path: Url,
-    text: String,
-}
-
-pub fn handle_image(path: String, text: String, handle: AppHandle) {
-    debug!("{}", path);
-    let remote_path =
-        Url::parse(format!("http://localhost:3000/uploads/{}", path).as_str()).unwrap();
-    handle
-        .emit("playImage", ImagePayload { remote_path, text })
-        .unwrap();
 }

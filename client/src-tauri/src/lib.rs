@@ -1,7 +1,8 @@
 use play::{pick_image, upload_file};
 use tauri::AppHandle;
 use tokio_tungstenite::tungstenite::Message;
-use ws::init::{close_ws_connection, init_ws_connection};
+use ws::close::close_ws_connection;
+use ws::init::init_ws_connection;
 use ws::messages::send_ws_message;
 
 pub mod play;
