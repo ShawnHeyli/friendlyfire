@@ -1,11 +1,15 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { displayImage, displayVideo } from './displayMessage';
 
 window.addEventListener("DOMContentLoaded", async () => {
   const joinButton = document.getElementById('joinButton') as HTMLButtonElement;
   joinButton.addEventListener('click', async () => {
     invoke('join_server');
+  });
+
+  const testButton = document.getElementById('testButton') as HTMLButtonElement;
+  testButton.addEventListener('click', async () => {
+    invoke('test_command');
   });
 
   const leaveButton = document.getElementById('leaveButton') as HTMLButtonElement;
@@ -33,15 +37,4 @@ window.addEventListener("DOMContentLoaded", async () => {
     const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
     clientCounter.innerHTML = payload.clientCount.toString();
   });
-
-  listen<PlayImageMessage>('playImage', (data) => {
-    const payload: PlayImageMessage = data.payload;
-    displayImage(payload);
-  });
-
-  listen<PlayVideoMessage>('playVideo', (data) => {
-    const payload: PlayVideoMessage = data.payload;
-    displayVideo(payload);
-  });
-
 });

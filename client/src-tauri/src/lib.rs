@@ -1,7 +1,8 @@
+use image::ImageReader;
 use play::image::{pick_image, ImagePayload};
 use play::upload_file;
 use play::video::{pick_video, VideoPayload};
-use tauri::{AppHandle, Url};
+use tauri::{AppHandle, LogicalSize, Manager, Size, Url, WebviewWindowBuilder};
 use tokio_tungstenite::tungstenite::Message;
 use ws::close::close_ws_connection;
 use ws::init::init_ws_connection;
@@ -50,6 +51,14 @@ async fn send_ws_string(message: String) {
 #[tauri::command]
 async fn play_image(handle: AppHandle, text: String) {
     if let Some(file) = pick_image(&handle) {
+        let img = ImageReader::open(&file.path).unwrap().decode().unwrap();
+        let width = img.width() as f64;
+        let height = img.height() as f64;
+        handle
+            .get_webview_window("player")
+            .unwrap()
+            .set_size(Size::Logical(LogicalSize::new(width, height)))
+            .unwrap();
         let remote_path = upload_file(file).await;
         let remote_path =
             Url::parse(format!("http://localhost:3000/uploads/{}", remote_path).as_str()).unwrap();

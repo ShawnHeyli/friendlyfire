@@ -1,3 +1,5 @@
+import { getCurrentWindow } from "@tauri-apps/api/window";
+
 function displayText(text: string) {
   var element = document.getElementById('message-text') as HTMLSpanElement;
   element.style.display = 'none';
@@ -13,6 +15,9 @@ function clearMessage() {
   const element_text = document.getElementById('message-text') as HTMLDivElement;
   element.style.display = "none";
   element_text.style.display = "none";
+  const window = getCurrentWindow();
+  window.hide();
+  window.setAlwaysOnTop(false);
 }
 
 function generateImage(src: string) {
