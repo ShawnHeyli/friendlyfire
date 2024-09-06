@@ -1,7 +1,6 @@
-use image::ImageReader;
-use play::image::{pick_image, ImagePayload};
-use play::upload_file;
-use play::video::{pick_video, VideoPayload};
+use play::image::{self, pick_image, ImagePayload};
+use play::video::{self, pick_video, VideoPayload};
+use play::{upload_file, Sendable};
 use tauri::{AppHandle, Manager, Url};
 use tauri_plugin_log::fern::colors::ColoredLevelConfig;
 use tokio_tungstenite::tungstenite::Message;
@@ -54,9 +53,7 @@ async fn send_ws_string(message: String) {
 #[tauri::command]
 async fn play_image(handle: AppHandle, text: String) {
     if let Some(file) = pick_image(&handle) {
-        let img = ImageReader::open(&file.path).unwrap().decode().unwrap();
-        let width = img.width() as f64;
-        let height = img.height() as f64;
+        let (width, height) = image::dimensions(&file.path).unwrap();
         let remote_path = upload_file(file).await;
         let remote_path =
             Url::parse(format!("http://localhost:3000/uploads/{}", remote_path).as_str()).unwrap();
@@ -68,10 +65,11 @@ async fn play_image(handle: AppHandle, text: String) {
 #[tauri::command]
 async fn play_video(handle: AppHandle, text: String) {
     if let Some(file) = pick_video(&handle) {
+        let (width, height) = video::dimensions(&file.path).unwrap();
         let remote_path = upload_file(file).await;
         let remote_path =
             Url::parse(format!("http://localhost:3000/uploads/{}", remote_path).as_str()).unwrap();
-        let payload = VideoPayload::new(remote_path, text.clone());
+        let payload = VideoPayload::new(remote_path, text.clone(), width, height);
         payload.send().await;
     }
 }

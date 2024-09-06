@@ -6,14 +6,14 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Url};
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::play::{image::ImagePayload, video::VideoPayload};
+use crate::play::{image::ImagePayload, video::VideoPayload, Emitable};
 
 use super::{WebSocketError, WS_CONNECTION};
 
 enum WsMessage {
     UpdateClientCount(u32),
     PlayImage(Url, String, f64, f64),
-    PlayVideo(Url, String),
+    PlayVideo(Url, String, f64, f64),
 }
 
 impl FromStr for WsMessage {
@@ -52,13 +52,21 @@ impl FromStr for WsMessage {
             "play_video" => {
                 let path = parts[1]
                     .parse::<String>()
-                    .map_err(|_| WebSocketError::ParseError("Invalid play_video remote path"))?;
+                    .map_err(|_| WebSocketError::ParseError("Invalid play_image remote path"))?;
                 let text = parts[2]
                     .parse::<String>()
-                    .map_err(|_| WebSocketError::ParseError("Invalid play_video text"))?;
+                    .map_err(|_| WebSocketError::ParseError("Invalid play_image text"))?;
+                let width = parts[3]
+                    .parse::<f64>()
+                    .map_err(|_| WebSocketError::ParseError("Invalid width"))?;
+                let height = parts[4]
+                    .parse::<f64>()
+                    .map_err(|_| WebSocketError::ParseError("Invalid height"))?;
                 Ok(WsMessage::PlayVideo(
                     Url::parse(&path).unwrap(),
                     text.to_owned(),
+                    width,
+                    height,
                 ))
             }
             _ => Err(WebSocketError::ParseError("Unknown message type")),
@@ -84,7 +92,9 @@ pub async fn handle_message(message: Message, handle: AppHandle) {
             Ok(WsMessage::PlayImage(path, text, width, height)) => {
                 ImagePayload::new(path, text, width, height).emit(&handle)
             }
-            Ok(WsMessage::PlayVideo(path, text)) => VideoPayload::new(path, text).emit(&handle),
+            Ok(WsMessage::PlayVideo(path, text, width, height)) => {
+                VideoPayload::new(path, text, width, height).emit(&handle)
+            }
             Err(e) => error!("Failed to parse a WebSocket message: {:?}", e),
         }
     }

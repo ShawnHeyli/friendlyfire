@@ -49,12 +49,17 @@ export function displayImage(message: PlayImageMessage) {
 
   const window = getCurrentWindow();
   window.setSize(new LogicalSize(message.width, message.height));
+  window.show()
   
   displayText(message.text)
   generateImage(message.remotePath);
 }
 
 export function displayVideo(message: PlayVideoMessage) {
+  const window = getCurrentWindow();
+  window.setSize(new LogicalSize(message.width, message.height));
+  window.show()
+
   displayText(message.text)
   generateVideo(message.remotePath);
 }

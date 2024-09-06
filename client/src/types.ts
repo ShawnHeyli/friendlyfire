@@ -8,6 +8,8 @@ type PlayImageMessage = {
 type PlayVideoMessage = {
   remotePath: string
   text: string
+  width: number
+  height: number
 }
 
 type JoinMessage = {
