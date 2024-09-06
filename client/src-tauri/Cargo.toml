@@ -17,18 +17,25 @@ tauri-build = { version = "2.0.0-rc", features = [] }
 [dependencies]
 tauri = { version = "2.0.0-rc", features = [] }
 tauri-plugin-shell = "2.0.0-rc"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-tokio = { version = "1.39.3", features = ["full"] }
-tokio-tungstenite = "0.23.1"
-tokio-util = { version = "0.7.11", features = ["full", "io-util"] }
-futures-util = { version = "0.3.30", features = ["sink"] }
+tauri-plugin-dialog = "2.0.0-rc"
 tauri-plugin-websocket = "2.0.0-rc"
 tauri-plugin-log = { version = "2.0.0-rc", features = ["colored"] }
 log = "0.4.22"
-tauri-plugin-dialog = "2.0.0-rc"
-reqwest = { version = "0.12.7", features = ["blocking", "stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1.39.3", features = ["full"] }
+tokio-util = { version = "0.7.11", features = ["full", "io-util"] }
+tokio-tungstenite = "0.23.1"
+futures-util = { version = "0.3.30", features = ["sink"] }
+reqwest = { version = "0.12.7", features = ["stream"] }
 lazy_static = "1.5.0"
 image = "0.25.2"
 ffmpeg-next = "7.0.4"
+
+[profile.release]
+panic = "abort" # Strip expensive panic clean-up logic
+codegen-units = 1 # Compile crates one after another so the compiler can optimize better
+lto = true # Enables link to optimizations
+opt-level = "s" # Optimize for binary size
+strip = true # Remove debug symbols
 
