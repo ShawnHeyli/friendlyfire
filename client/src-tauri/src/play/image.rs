@@ -11,18 +11,25 @@ use crate::ws::messages::send_ws_message;
 pub struct ImagePayload {
     remote_path: Url,
     text: String,
+    width: f64,
+    height: f64,
 }
 
 impl ImagePayload {
-    pub fn new(remote_path: Url, text: String) -> Self {
-        Self { remote_path, text }
+    pub fn new(remote_path: Url, text: String, width: f64, height: f64) -> Self {
+        Self {
+            remote_path,
+            text,
+            width,
+            height,
+        }
     }
 
     pub async fn send(&self) {
         debug!("Sent: {}", self.remote_path);
         send_ws_message(Message::Text(format!(
-            "play_image;{};{}",
-            self.remote_path, self.text
+            "play_image;{};{};{};{}",
+            self.remote_path, self.text, self.width, self.height
         )))
         .await
         .unwrap()
@@ -35,6 +42,8 @@ impl ImagePayload {
             ImagePayload {
                 remote_path: self.remote_path.clone(),
                 text: self.text.clone(),
+                width: self.width,
+                height: self.height,
             },
         ) {
             log::error!("Failed to emit playImage event: {:?}", e);

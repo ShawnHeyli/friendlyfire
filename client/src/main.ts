@@ -1,7 +1,20 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { debug, error, info, warn } from '@tauri-apps/plugin-log';
+import { forwardConsole, forwardUnhandledRejection } from './log';
+
+
+forwardConsole('log', debug);
+forwardConsole('debug', debug);
+forwardConsole('info', info);
+forwardConsole('warn', warn);
+forwardConsole('error', error);
+
+forwardUnhandledRejection(error);
 
 window.addEventListener("DOMContentLoaded", async () => {
+
   const joinButton = document.getElementById('joinButton') as HTMLButtonElement;
   joinButton.addEventListener('click', async () => {
     invoke('join_server');
@@ -9,7 +22,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const testButton = document.getElementById('testButton') as HTMLButtonElement;
   testButton.addEventListener('click', async () => {
-    invoke('test_command');
+    // invoke('test_command');
+    getCurrentWindow().hide();
   });
 
   const leaveButton = document.getElementById('leaveButton') as HTMLButtonElement;
@@ -32,9 +46,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   listen<JoinMessage>('updateClientCount', (data) => {
-    console.log(data)
     const payload: JoinMessage = data.payload;
     const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
     clientCounter.innerHTML = payload.clientCount.toString();
   });
 });
+

@@ -12,7 +12,7 @@ use super::{WebSocketError, WS_CONNECTION};
 
 enum WsMessage {
     UpdateClientCount(u32),
-    PlayImage(Url, String),
+    PlayImage(Url, String, f64, f64),
     PlayVideo(Url, String),
 }
 
@@ -36,9 +36,17 @@ impl FromStr for WsMessage {
                 let text = parts[2]
                     .parse::<String>()
                     .map_err(|_| WebSocketError::ParseError("Invalid play_image text"))?;
+                let width = parts[3]
+                    .parse::<f64>()
+                    .map_err(|_| WebSocketError::ParseError("Invalid width"))?;
+                let height = parts[4]
+                    .parse::<f64>()
+                    .map_err(|_| WebSocketError::ParseError("Invalid height"))?;
                 Ok(WsMessage::PlayImage(
                     Url::parse(&path).unwrap(),
                     text.to_owned(),
+                    width,
+                    height,
                 ))
             }
             "play_video" => {
@@ -73,7 +81,9 @@ pub async fn handle_message(message: Message, handle: AppHandle) {
                     log::error!("Failed to emit updateClientCount event: {:?}", e);
                 }
             }
-            Ok(WsMessage::PlayImage(path, text)) => ImagePayload::new(path, text).emit(&handle),
+            Ok(WsMessage::PlayImage(path, text, width, height)) => {
+                ImagePayload::new(path, text, width, height).emit(&handle)
+            }
             Ok(WsMessage::PlayVideo(path, text)) => VideoPayload::new(path, text).emit(&handle),
             Err(e) => error!("Failed to parse a WebSocket message: {:?}", e),
         }

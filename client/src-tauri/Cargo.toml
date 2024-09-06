@@ -24,7 +24,7 @@ tokio-tungstenite = "0.23.1"
 tokio-util = { version = "0.7.11", features = ["full", "io-util"] }
 futures-util = { version = "0.3.30", features = ["sink"] }
 tauri-plugin-websocket = "2.0.0-rc"
-tauri-plugin-log = "2.0.0-rc"
+tauri-plugin-log = { version = "2.0.0-rc", features = ["colored"] }
 log = "0.4.22"
 tauri-plugin-dialog = "2.0.0-rc"
 reqwest = { version = "0.12.7", features = ["blocking", "stream"] }

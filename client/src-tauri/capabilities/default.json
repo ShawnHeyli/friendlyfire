@@ -9,9 +9,10 @@
   "permissions": [
     "core:app:default",
     "core:event:default",
-    "shell:allow-open",
-    "websocket:default",
     "log:default",
-    "core:window:allow-show"
+    "core:window:allow-hide",
+    "core:window:allow-show",
+    "core:window:allow-set-always-on-top",
+    "core:window:allow-set-size"
   ]
 }

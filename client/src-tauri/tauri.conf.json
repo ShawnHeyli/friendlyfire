@@ -23,7 +23,7 @@
         "focus": false,
         "transparent": true,
         "visible": false,
-        "alwaysOnTop": false,
+        "alwaysOnTop": true,
         "decorations": false,
         "url": "player.html",
         "closable": false,
