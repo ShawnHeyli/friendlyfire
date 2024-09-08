@@ -1,6 +1,7 @@
 pub mod image;
 pub mod video;
 
+use log::debug;
 use reqwest::{header::CONTENT_TYPE, Body};
 use serde::Serialize;
 use tauri::{
@@ -29,7 +30,7 @@ pub async fn upload_file(file: FileResponse) -> String {
         headers.insert(CONTENT_TYPE, HeaderValue::from_str(&mime_type).unwrap());
     }
     let response = client
-        .post("http://localhost:3000/upload")
+        .post("https://localhost:7331/upload")
         .headers(headers)
         .body({
             let stream = FramedRead::new(File::open(file.path).await.unwrap(), BytesCodec::new());
@@ -38,5 +39,6 @@ pub async fn upload_file(file: FileResponse) -> String {
         .send()
         .await
         .unwrap();
+
     response.text().await.unwrap()
 }

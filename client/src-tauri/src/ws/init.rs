@@ -13,7 +13,7 @@ use super::{
 
 pub async fn init_ws_connection(handle: AppHandle) -> Result<(), WebSocketError> {
     if WS_CONNECTION.lock().await.is_none() {
-        let (ws, _) = connect_async("ws://localhost:3000/ws")
+        let (ws, _) = connect_async("wss://localhost:7331/ws")
             .await
             .inspect(|(_, _)| info!("Successfully connected to the server"))
             .map_err(WebSocketError::ConnectionError)?;

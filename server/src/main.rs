@@ -31,7 +31,7 @@ async fn main() {
         .route("/uploads/:asset", get(serve_asset))
         .into_make_service_with_connect_info::<SocketAddr>();
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:7331").await.unwrap();
     axum::serve(listener, routes).await.unwrap();
 }
 

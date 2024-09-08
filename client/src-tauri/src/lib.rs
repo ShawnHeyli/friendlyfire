@@ -1,7 +1,8 @@
+use log::debug;
 use play::image::{self, pick_image, ImagePayload};
 use play::video::{self, pick_video, VideoPayload};
 use play::{upload_file, Sendable};
-use tauri::{AppHandle, Manager, Url};
+use tauri::{AppHandle, Url};
 use tauri_plugin_log::fern::colors::ColoredLevelConfig;
 use tokio_tungstenite::tungstenite::Message;
 use ws::close::close_ws_connection;
@@ -27,8 +28,13 @@ pub fn run() {
             send_ws_string,
             play_image,
             play_video,
-            test_command
         ])
+        .setup(|_app| {
+            rustls::crypto::ring::default_provider()
+                .install_default()
+                .expect("Failed to install rustls crypto provider");
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -55,8 +61,9 @@ async fn play_image(handle: AppHandle, text: String) {
     if let Some(file) = pick_image(&handle) {
         let (width, height) = image::dimensions(&file.path).unwrap();
         let remote_path = upload_file(file).await;
+        debug!("Received remote_path '{}' from the server", remote_path);
         let remote_path =
-            Url::parse(format!("http://localhost:3000/uploads/{}", remote_path).as_str()).unwrap();
+            Url::parse(format!("https://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
         let payload = ImagePayload::new(remote_path, text.clone(), width, height);
         payload.send().await;
     }
@@ -67,14 +74,10 @@ async fn play_video(handle: AppHandle, text: String) {
     if let Some(file) = pick_video(&handle) {
         let (width, height) = video::dimensions(&file.path).unwrap();
         let remote_path = upload_file(file).await;
+        debug!("Received remote_path '{}' from the server", remote_path);
         let remote_path =
-            Url::parse(format!("http://localhost:3000/uploads/{}", remote_path).as_str()).unwrap();
+            Url::parse(format!("https://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
         let payload = VideoPayload::new(remote_path, text.clone(), width, height);
         payload.send().await;
     }
-}
-
-#[tauri::command]
-async fn test_command(handle: AppHandle) {
-    handle.get_webview_window("main").unwrap().hide().unwrap();
 }
