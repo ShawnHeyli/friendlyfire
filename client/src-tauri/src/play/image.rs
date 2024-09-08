@@ -67,8 +67,8 @@ pub fn pick_image(handle: &AppHandle) -> Option<FileResponse> {
         .dialog()
         .file()
         .add_filter(
-            "Images *.BMP *.GIF *.JPEG *.PNG *.WebP *.SVG *.AVIF",
-            &["bmp", "gif", "jpeg", "png", "wEBp", "svg", "avif"],
+            "Images *.BMP *.GIF *.JPEG *.JPG *.PNG *.WebP *.SVG *.AVIF",
+            &["bmp", "gif", "jpeg", "jpg", "png", "wEBp", "svg", "avif"],
         )
         .blocking_pick_file()
 }
