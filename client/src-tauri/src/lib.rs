@@ -63,7 +63,7 @@ async fn play_image(handle: AppHandle, text: String) {
         let remote_path = upload_file(file).await;
         debug!("Received remote_path '{}' from the server", remote_path);
         let remote_path =
-            Url::parse(format!("https://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
+            Url::parse(format!("http://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
         let payload = ImagePayload::new(remote_path, text.clone(), width, height);
         payload.send().await;
     }
@@ -76,7 +76,7 @@ async fn play_video(handle: AppHandle, text: String) {
         let remote_path = upload_file(file).await;
         debug!("Received remote_path '{}' from the server", remote_path);
         let remote_path =
-            Url::parse(format!("https://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
+            Url::parse(format!("http://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
         let payload = VideoPayload::new(remote_path, text.clone(), width, height);
         payload.send().await;
     }
