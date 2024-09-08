@@ -30,7 +30,7 @@ pub async fn upload_file(file: FileResponse) -> String {
         headers.insert(CONTENT_TYPE, HeaderValue::from_str(&mime_type).unwrap());
     }
     let response = client
-        .post("https://localhost:7331/upload")
+        .post("http://localhost:7331/upload")
         .headers(headers)
         .body({
             let stream = FramedRead::new(File::open(file.path).await.unwrap(), BytesCodec::new());
