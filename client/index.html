@@ -8,38 +8,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tauri App</title>
   <script type="module" src="/src/main.ts" defer></script>
+  <script type="module" src="/src/editor/main.ts" defer></script>
 </head>
 
 <body class="bg-base-100">
-  <div id="commandCenter">
+  <div id="commandCenter" class="flex">
     <section>
-      <div class="sectionTitle flex items-center gap-2">
-        <p class="block">Server Status</p>
-        <span id="statusDot" class="relative flex h-3 w-3">
-          <span class="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
-          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-        </span>
-      </div>
-      <div>Connection Status:
-        <span id="connectionStatus">Disconnected</span>
-      </div>
-      <div class="countdown">Number of Clients:
-        <span id="clientCount" style="--value:${counter};"></span>
-      </div>
+      <section>
+        <div class="sectionTitle flex items-center gap-2">
+          <p class="block">Server Status</p>
+          <span id="statusDot" class="relative flex h-3 w-3">
+            <span class="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+          </span>
+        </div>
+        <div>Connection Status:
+          <span id="connectionStatus">Disconnected</span>
+        </div>
+        <div class="countdown">Number of Clients:
+          <span id="clientCount" style="--value:${counter};"></span>
+        </div>
+      </section>
+      <section>
+        <div class="sectionTitle">Server Actions</div>
+        <button class="btn btn-active btn-primary" id="joinServerButton">Join Server</button>
+        <button class="btn btn-active btn-secondary" id="leaveServerButton">Leave Server</button>
+      </section>
+      <section>
+        <div class="sectionTitle">Media Actions</div>
+        <button class="btn btn-active btn-accent" id="playImageButton">Play Image</button>
+        <button class="btn btn-active btn-accent" id="playVideoButton">Play Video</button>
+      </section>
+      <section>
+        <div class="sectionTitle">Additional Options</div>
+        <input type="text" id="textInput" class="input w-full max-w-xs" placeholder="Enter text">
+      </section>
     </section>
     <section>
-      <div class="sectionTitle">Server Actions</div>
-      <button class="btn btn-active btn-primary" id="joinServerButton">Join Server</button>
-      <button class="btn btn-active btn-secondary" id="leaveServerButton">Leave Server</button>
-    </section>
-    <section>
-      <div class="sectionTitle">Media Actions</div>
-      <button class="btn btn-active btn-accent" id="playImageButton">Play Image</button>
-      <button class="btn btn-active btn-accent" id="playVideoButton">Play Video</button>
-    </section>
-    <section>
-      <div class="sectionTitle">Additional Options</div>
-      <input type="text" id="textInput" class="input w-full max-w-xs" placeholder="Enter text">
+      <button id="filePicker" class="btn btn-active">Choose a file</button>
+      <canvas id="preview" />
     </section>
 </body>
 
