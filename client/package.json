@@ -15,6 +15,7 @@
     "@tauri-apps/plugin-log": "^2.0.0-rc.0",
     "@tauri-apps/plugin-shell": ">=2.0.0-rc.0",
     "@tauri-apps/plugin-websocket": "^2.0.0-rc.0",
+    "@types/fabric": "^5.3.9",
     "fabric": "^5.4.0"
   },
   "devDependencies": {
