@@ -1,7 +1,69 @@
-# Tauri + Vanilla TS
+# Client
 
-This template should help get you started developing with Tauri in vanilla HTML, CSS and Typescript.
+This client is built upon the Tauri framework v2 [docs here](https://v2.tauri.app/start/)
 
-## Recommended IDE Setup
+## Development
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+### Requirements
+
+From the [tauri docs](https://v2.tauri.app/start/prerequisites/) we need to install 
+#### Debian
+
+```
+sudo apt update
+sudo apt install libwebkit2gtk-4.1-dev \
+  build-essential \
+  curl \
+  wget \
+  file \
+  libxdo-dev \
+  libssl-dev \
+  libayatana-appindicator3-dev \
+  librsvg2-dev
+```
+
+#### Arch
+
+```
+sudo pacman -Syu
+sudo pacman -S --needed \
+  webkit2gtk-4.1 \
+  base-devel \
+  curl \
+  wget \
+  file \
+  openssl \
+  appmenu-gtk-module \
+  libappindicator-gtk3 \
+  librsvg
+```
+
+#### Fedora
+```
+sudo dnf check-update
+sudo dnf install webkit2gtk4.1-devel \
+  openssl-devel \
+  curl \
+  wget \
+  file \
+  libappindicator-gtk3-devel \
+  librsvg2-devel
+sudo dnf group install "C Development Tools and Libraries"
+```
+
+On this project I use **bun** which can be install with the following command
+``` 
+  curl -fsSL https://bun.sh/install | bash # for macOS, Linux, and WSL
+```
+
+When you first git clone this project you need to install the nodejs dependencies
+```
+  bun install
+```
+
+### Start the dev client
+
+Now to start the development version of the client
+```
+  bunx tauri dev
+```
