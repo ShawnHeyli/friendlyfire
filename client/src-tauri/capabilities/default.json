@@ -13,6 +13,14 @@
     "core:window:allow-hide",
     "core:window:allow-show",
     "core:window:allow-set-always-on-top",
-    "core:window:allow-set-size"
+    "core:window:allow-set-size",
+    {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "http://localhost:7331/*"
+        }
+      ]
+    }
   ]
 }

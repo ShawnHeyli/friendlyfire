@@ -5,7 +5,7 @@ use axum::{
         ConnectInfo, DefaultBodyLimit, Path, State, WebSocketUpgrade,
     },
     http::StatusCode,
-    response::{Html, IntoResponse},
+    response::{Html, IntoResponse, Response},
     routing::{get, post},
     Router,
 };
@@ -27,6 +27,7 @@ async fn main() {
     let routes = Router::new()
         .route("/", get(|| async { Html::from("Video Sync Server") }))
         .route("/ws", get(ws_handler).with_state(app_state.clone()))
+        .route("/healthcheck", get(healthcheck))
         .route("/upload", post(upload).layer(DefaultBodyLimit::disable()))
         .route("/uploads/:asset", get(serve_asset))
         .into_make_service_with_connect_info::<SocketAddr>();
@@ -44,6 +45,11 @@ impl Default for AppState {
         let (sender, _receiver) = broadcast::channel(32);
         AppState { sender }
     }
+}
+
+async fn healthcheck(ConnectInfo(addr): ConnectInfo<SocketAddr>) -> impl IntoResponse {
+    println!("{} accessed /healthcheck", addr);
+    (StatusCode::OK, "Ok")
 }
 
 #[debug_handler]
