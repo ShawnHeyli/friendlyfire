@@ -15,31 +15,47 @@ forwardUnhandledRejection(error);
 
 window.addEventListener("DOMContentLoaded", async () => {
 
-  const statusDot = document.getElementById('statusDot') as HTMLSpanElement
+  const forwardDot = document.getElementById('forwardDot') as HTMLSpanElement
+  const backDot = document.getElementById('backDot') as HTMLSpanElement
   setInterval(function() {
+    backDot.classList.add('animate-ping');
     fetch('http://localhost:7331/healthcheck')
       .then(response => {
         if (response.ok) {
-          // Server is up
-          statusDot.innerHTML = `
-          <span class="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
-          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-        `;
+          // Server is up, pulse the status dot
+          forwardDot.classList.remove('bg-gray-500');
+          forwardDot.classList.remove('bg-red-500');
+          forwardDot.classList.add('bg-green-500');
+          backDot.classList.remove('bg-gray-400');
+          forwardDot.classList.remove('bg-red-400');
+          backDot.classList.add('bg-green-400');
+          setTimeout(() => {
+            backDot.classList.remove('animate-ping');
+          }, 1000); // Remove the pulse after 1 second
         } else {
-          // Server is down
-          statusDot.innerHTML = `
-          <span class="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
-          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-        `;
+          // Server is down, set the status dot to red
+          forwardDot.classList.remove('bg-gray-500');
+          forwardDot.classList.remove('bg-green-500');
+          forwardDot.classList.add('bg-red-500');
+          backDot.classList.remove('bg-gray-400');
+          forwardDot.classList.remove('bg-green-400');
+          backDot.classList.add('bg-red-400');
+          setTimeout(() => {
+            backDot.classList.remove('animate-ping');
+          }, 1000); // Remove the pulse after 1 second
         }
       })
-      .catch(error => {
+      .catch(_error => {
         // Error occurred, assume server is down
-        console.error(error);
-        statusDot.innerHTML = `
-          <span class="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
-          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-      `;
+        forwardDot.classList.remove('bg-gray-500');
+        forwardDot.classList.remove('bg-green-500');
+        forwardDot.classList.add('bg-red-500');
+        backDot.classList.remove('bg-gray-400');
+        backDot.classList.remove('bg-green-400');
+        backDot.classList.add('bg-red-400');
+        setTimeout(() => {
+          backDot.classList.remove('animate-ping');
+        }, 1000); // Remove the pulse after 1 second
       });
   }, 3000);
 
