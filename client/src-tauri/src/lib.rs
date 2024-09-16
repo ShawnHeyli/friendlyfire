@@ -8,6 +8,7 @@ use tokio_tungstenite::tungstenite::Message;
 use ws::close::close_ws_connection;
 use ws::init::init_ws_connection;
 use ws::messages::send_ws_message;
+use ws::WebSocketError;
 
 pub mod play;
 pub mod ws;
@@ -41,15 +42,15 @@ pub fn run() {
 }
 
 #[tauri::command]
-async fn join_server(handle: AppHandle) {
-    init_ws_connection(handle).await.unwrap();
+async fn join_server(handle: AppHandle) -> Result<(), WebSocketError> {
+    init_ws_connection(handle).await
     // From here WS_CONNECTION is set
     // After this client receives joined message and updates the client count
 }
 
 #[tauri::command]
-async fn leave_server() {
-    close_ws_connection().await.unwrap();
+async fn leave_server() -> Result<(), WebSocketError> {
+    close_ws_connection().await
 }
 
 #[tauri::command]

@@ -61,14 +61,20 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const joinButton = document.getElementById('joinServerButton') as HTMLButtonElement;
   joinButton.addEventListener('click', async () => {
-    invoke('join_server');
+    invoke('join_server').then(() => {
+      const connectionStatus = document.getElementById("connectionStatus") as HTMLSpanElement;
+      connectionStatus.innerHTML = "Connected";
+    })
   });
 
   const leaveButton = document.getElementById('leaveServerButton') as HTMLButtonElement;
   leaveButton.addEventListener('click', async () => {
-    invoke('leave_server');
-    const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
-    clientCounter.style.setProperty('--value', "0");
+    invoke('leave_server').then(() => {
+      const connectionStatus = document.getElementById("connectionStatus") as HTMLSpanElement;
+      connectionStatus.innerHTML = "Disconnected";
+      const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
+      clientCounter.style.setProperty('--value', "0");
+    })
   });
 
   const playImageButton = document.getElementById('playImageButton') as HTMLButtonElement;
