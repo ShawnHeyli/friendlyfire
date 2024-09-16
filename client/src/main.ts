@@ -27,7 +27,7 @@ window.addEventListener("DOMContentLoaded", async () => {
           forwardDot.classList.remove('bg-red-500');
           forwardDot.classList.add('bg-green-500');
           backDot.classList.remove('bg-gray-400');
-          forwardDot.classList.remove('bg-red-400');
+          backDot.classList.remove('bg-red-400');
           backDot.classList.add('bg-green-400');
           setTimeout(() => {
             backDot.classList.remove('animate-ping');
@@ -38,7 +38,7 @@ window.addEventListener("DOMContentLoaded", async () => {
           forwardDot.classList.remove('bg-green-500');
           forwardDot.classList.add('bg-red-500');
           backDot.classList.remove('bg-gray-400');
-          forwardDot.classList.remove('bg-green-400');
+          backDot.classList.remove('bg-green-400');
           backDot.classList.add('bg-red-400');
           setTimeout(() => {
             backDot.classList.remove('animate-ping');
