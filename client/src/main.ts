@@ -59,42 +59,47 @@ window.addEventListener("DOMContentLoaded", async () => {
       });
   }, 3000);
 
-  const joinButton = document.getElementById('joinServerButton') as HTMLButtonElement;
-  joinButton.addEventListener('click', async () => {
+let connected = false;
+const serverButton = document.getElementById('serverButton') as HTMLButtonElement;
+serverButton.addEventListener("click", async () => {
+  if (!connected) {
     invoke('join_server').then(() => {
       const connectionStatus = document.getElementById("connectionStatus") as HTMLSpanElement;
       connectionStatus.innerHTML = "Connected";
+      connected = true;
+      serverButton.innerHTML = "Leave server"
     })
-  });
-
-  const leaveButton = document.getElementById('leaveServerButton') as HTMLButtonElement;
-  leaveButton.addEventListener('click', async () => {
+  } else if (connected) {
     invoke('leave_server').then(() => {
       const connectionStatus = document.getElementById("connectionStatus") as HTMLSpanElement;
       connectionStatus.innerHTML = "Disconnected";
       const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
       clientCounter.style.setProperty('--value', "0");
+      connected = false;
+      serverButton.innerHTML = "Join server"
     })
-  });
+  }
 
-  const playImageButton = document.getElementById('playImageButton') as HTMLButtonElement;
-  playImageButton.addEventListener('click', async () => {
-    const textInput = document.getElementById('textInput') as HTMLInputElement;
-    const text = textInput.value;
-    invoke('play_image', { text });
-  });
+});
 
-  const playVideoButton = document.getElementById('playVideoButton') as HTMLButtonElement;
-  playVideoButton.addEventListener('click', async () => {
-    const textInput = document.getElementById('textInput') as HTMLInputElement;
-    const text = textInput.value;
-    invoke('play_video', { text });
-  });
+const playImageButton = document.getElementById('playImageButton') as HTMLButtonElement;
+playImageButton.addEventListener('click', async () => {
+  const textInput = document.getElementById('textInput') as HTMLInputElement;
+  const text = textInput.value;
+  invoke('play_image', { text });
+});
 
-  listen<JoinMessage>('updateClientCount', (data) => {
-    const payload: JoinMessage = data.payload;
-    const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
-    clientCounter.style.setProperty('--value', payload.clientCount.toString());
-  });
+const playVideoButton = document.getElementById('playVideoButton') as HTMLButtonElement;
+playVideoButton.addEventListener('click', async () => {
+  const textInput = document.getElementById('textInput') as HTMLInputElement;
+  const text = textInput.value;
+  invoke('play_video', { text });
+});
+
+listen<JoinMessage>('updateClientCount', (data) => {
+  const payload: JoinMessage = data.payload;
+  const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
+  clientCounter.style.setProperty('--value', payload.clientCount.toString());
+});
 });
 
