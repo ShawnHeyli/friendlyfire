@@ -1,9 +1,12 @@
-use log::debug;
-use play::image::{self, pick_image, ImagePayload};
-use play::video::{self, pick_video, VideoPayload};
+use std::path::PathBuf;
+
+use log::{debug, info};
+use play::image::{self, ImagePayload};
+use play::video::{self, VideoPayload};
 use play::{upload_file, Sendable};
 use tauri::{AppHandle, Url};
 use tauri_plugin_log::fern::colors::ColoredLevelConfig;
+use tokio::fs::File;
 use tokio_tungstenite::tungstenite::Message;
 use ws::close::close_ws_connection;
 use ws::init::init_ws_connection;
@@ -24,6 +27,7 @@ pub fn run() {
         .plugin(tauri_plugin_websocket::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             join_server,
             leave_server,
@@ -59,27 +63,26 @@ async fn send_ws_string(message: String) {
 }
 
 #[tauri::command]
-async fn play_image(handle: AppHandle, text: String) {
-    if let Some(file) = pick_image(&handle) {
-        let (width, height) = image::dimensions(&file.path).unwrap();
-        let remote_path = upload_file(file).await;
-        debug!("Received remote_path '{}' from the server", remote_path);
-        let remote_path =
-            Url::parse(format!("http://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
-        let payload = ImagePayload::new(remote_path, text.clone(), width, height);
-        payload.send().await;
-    }
+async fn play_image(path: PathBuf, text: String) {
+    info!("{:?}", path);
+    let file = File::open(&path).await.unwrap();
+    let (width, height) = image::dimensions(&path).unwrap();
+    let remote_path = upload_file(file).await;
+    debug!("Received remote_path '{}' from the server", remote_path);
+    let remote_path =
+        Url::parse(format!("http://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
+    let payload = ImagePayload::new(remote_path, text.clone(), width, height);
+    payload.send().await;
 }
 
 #[tauri::command]
-async fn play_video(handle: AppHandle, text: String) {
-    if let Some(file) = pick_video(&handle) {
-        let (width, height) = video::dimensions(&file.path).unwrap();
-        let remote_path = upload_file(file).await;
-        debug!("Received remote_path '{}' from the server", remote_path);
-        let remote_path =
-            Url::parse(format!("http://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
-        let payload = VideoPayload::new(remote_path, text.clone(), width, height);
-        payload.send().await;
-    }
+async fn play_video(path: PathBuf, text: String) {
+    let file = File::open(&path).await.unwrap();
+    let (width, height) = video::dimensions(&path).unwrap();
+    let remote_path = upload_file(file).await;
+    debug!("Received remote_path '{}' from the server", remote_path);
+    let remote_path =
+        Url::parse(format!("http://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
+    let payload = VideoPayload::new(remote_path, text.clone(), width, height);
+    payload.send().await;
 }

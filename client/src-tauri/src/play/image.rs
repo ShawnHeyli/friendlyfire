@@ -4,7 +4,6 @@ use image::ImageReader;
 use log::debug;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Url};
-use tauri_plugin_dialog::{DialogExt, FileResponse};
 use tokio_tungstenite::tungstenite::Message;
 
 use crate::ws::messages::send_ws_message;
@@ -60,17 +59,6 @@ impl Emitable for ImagePayload {
             log::error!("Failed to emit playImage event: {:?}", e);
         }
     }
-}
-
-pub fn pick_image(handle: &AppHandle) -> Option<FileResponse> {
-    handle
-        .dialog()
-        .file()
-        .add_filter(
-            "Images *.BMP *.GIF *.JPEG *.JPG *.PNG *.WebP *.SVG *.AVIF",
-            &["bmp", "gif", "jpeg", "jpg", "png", "wEBp", "svg", "avif"],
-        )
-        .blocking_pick_file()
 }
 
 pub fn dimensions(file_path: impl AsRef<Path>) -> Result<(f64, f64), image::ImageError> {

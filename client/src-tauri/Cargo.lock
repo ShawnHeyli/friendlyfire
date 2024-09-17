@@ -780,6 +780,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
+ "tauri-plugin-fs",
  "tauri-plugin-http",
  "tauri-plugin-log",
  "tauri-plugin-shell",
@@ -5000,9 +5001,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-dialog"
-version = "2.0.0-rc.2"
+version = "2.0.0-rc.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23f9acd91025e9b624969422e4c707f7cdcded6de66aa0559bc4d91339753cc2"
+checksum = "191a81b01083881a388879e269eec60b582eed6fc3e16884dc394ff1791b0c19"
 dependencies = [
  "dunce",
  "log",
@@ -5014,18 +5015,17 @@ dependencies = [
  "tauri-plugin",
  "tauri-plugin-fs",
  "thiserror",
+ "url",
 ]
 
 [[package]]
 name = "tauri-plugin-fs"
-version = "2.0.0-rc.5"
+version = "2.0.0-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4cb1dfbbea322afbc9dec49351bc29edf4e85e74d37d9a3fcc72d67ed55ffdbd"
+checksum = "0704205734f3b4f37d7bf9e9072537716371741bf98b22a22cc5e5340e512467"
 dependencies = [
  "anyhow",
- "dunce",
  "glob",
- "percent-encoding",
  "schemars",
  "serde",
  "serde_json",
@@ -5039,9 +5039,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-http"
-version = "2.0.0-rc.5"
+version = "2.0.0-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf6e753f6b98a326ab5e2d604973e761a7970dec0c0bcd5ba83ce7392623dfa8"
+checksum = "f68c3f0db9def6d86729f5e4f4ee20dba93948a162f446415aa4ae5dcb99d5cf"
 dependencies = [
  "data-url",
  "http",

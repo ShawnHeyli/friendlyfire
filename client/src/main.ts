@@ -3,6 +3,9 @@ import { listen } from '@tauri-apps/api/event';
 import { debug, error, info, warn } from '@tauri-apps/plugin-log';
 import { forwardConsole, forwardUnhandledRejection } from './log';
 import { fetch } from '@tauri-apps/plugin-http';
+import { open } from '@tauri-apps/plugin-dialog';
+import * as fileType from 'file-type';
+import { readFile } from '@tauri-apps/plugin-fs';
 
 
 forwardConsole('log', debug);
@@ -59,47 +62,57 @@ window.addEventListener("DOMContentLoaded", async () => {
       });
   }, 3000);
 
-let connected = false;
-const serverButton = document.getElementById('serverButton') as HTMLButtonElement;
-serverButton.addEventListener("click", async () => {
-  if (!connected) {
-    invoke('join_server').then(() => {
-      const connectionStatus = document.getElementById("connectionStatus") as HTMLSpanElement;
-      connectionStatus.innerHTML = "Connected";
-      connected = true;
-      serverButton.innerHTML = "Leave server"
-    })
-  } else if (connected) {
-    invoke('leave_server').then(() => {
-      const connectionStatus = document.getElementById("connectionStatus") as HTMLSpanElement;
-      connectionStatus.innerHTML = "Disconnected";
-      const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
-      clientCounter.style.setProperty('--value', "0");
-      connected = false;
-      serverButton.innerHTML = "Join server"
-    })
-  }
+  let connected = false;
+  const serverButton = document.getElementById('serverButton') as HTMLButtonElement;
+  serverButton.addEventListener("click", async () => {
+    if (!connected) {
+      invoke('join_server').then(() => {
+        const connectionStatus = document.getElementById("connectionStatus") as HTMLSpanElement;
+        connectionStatus.innerHTML = "Connected";
+        connected = true;
+        serverButton.innerHTML = "Leave server"
+      })
+    } else if (connected) {
+      invoke('leave_server').then(() => {
+        const connectionStatus = document.getElementById("connectionStatus") as HTMLSpanElement;
+        connectionStatus.innerHTML = "Disconnected";
+        const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
+        clientCounter.style.setProperty('--value', "0");
+        connected = false;
+        serverButton.innerHTML = "Join server"
+      })
+    }
+  });
 
-});
+  const playButton = document.getElementById('playButton') as HTMLButtonElement;
+  playButton.addEventListener("click", async () => {
+    //@ts-ignore
+    let file: string | null = await open({
+      multiple: false,
+      filters: [{ name: 'Image', extensions: ['jpg', 'jpeg', 'png', 'gif'] }, { name: 'Video', extensions: ['mp4', 'webm', 'ogg'] }]
+    });
+    if (file) {
+      const content = await readFile(file);
+      const type = await fileType.fileTypeFromBuffer(content);
+      if (type && type.mime.startsWith('image/')) {
+        const textInput = document.getElementById('textInput') as HTMLInputElement;
+        const text = textInput.value;
+        invoke('play_image', { path: file, text });
+      } else if (type && type.mime.startsWith('video/')) {
+        const textInput = document.getElementById('textInput') as HTMLInputElement;
+        const text = textInput.value;
+        invoke('play_video', { path: file, text });
+      } else {
+        console.error('Unsupported file type:', type ? type.mime : 'unknown');
+      }
+    }
+  });
 
-const playImageButton = document.getElementById('playImageButton') as HTMLButtonElement;
-playImageButton.addEventListener('click', async () => {
-  const textInput = document.getElementById('textInput') as HTMLInputElement;
-  const text = textInput.value;
-  invoke('play_image', { text });
-});
 
-const playVideoButton = document.getElementById('playVideoButton') as HTMLButtonElement;
-playVideoButton.addEventListener('click', async () => {
-  const textInput = document.getElementById('textInput') as HTMLInputElement;
-  const text = textInput.value;
-  invoke('play_video', { text });
-});
-
-listen<JoinMessage>('updateClientCount', (data) => {
-  const payload: JoinMessage = data.payload;
-  const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
-  clientCounter.style.setProperty('--value', payload.clientCount.toString());
-});
+  listen<JoinMessage>('updateClientCount', (data) => {
+    const payload: JoinMessage = data.payload;
+    const clientCounter = document.getElementById('clientCount') as HTMLSpanElement;
+    clientCounter.style.setProperty('--value', payload.clientCount.toString());
+  });
 });
 
