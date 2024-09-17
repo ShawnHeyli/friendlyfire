@@ -33,6 +33,7 @@ image = "0.25.2"
 ffmpeg-next = "7.0.4"
 rustls = { version = "0.23.12", features = ["ring", "tls12"] }
 tauri-plugin-http = "2.0.0-rc"
+tauri-plugin-fs = "=2.0.0-rc.2"
 
 [profile.release]
 panic = "abort" # Strip expensive panic clean-up logic
