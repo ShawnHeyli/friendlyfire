@@ -1,14 +1,9 @@
 pub mod image;
 pub mod video;
 
-use log::debug;
-use reqwest::{header::CONTENT_TYPE, Body};
+use reqwest::Body;
 use serde::Serialize;
-use tauri::{
-    http::{HeaderMap, HeaderValue},
-    AppHandle,
-};
-use tauri_plugin_dialog::FileResponse;
+use tauri::AppHandle;
 use tokio::fs::File;
 use tokio_tungstenite::tungstenite::Message;
 use tokio_util::codec::{BytesCodec, FramedRead};
@@ -23,17 +18,12 @@ pub trait Emitable {
     fn emit(&self, handle: &AppHandle);
 }
 
-pub async fn upload_file(file: FileResponse) -> String {
+pub async fn upload_file(file: File) -> String {
     let client = reqwest::Client::new();
-    let mut headers = HeaderMap::new();
-    if let Some(mime_type) = file.mime_type {
-        headers.insert(CONTENT_TYPE, HeaderValue::from_str(&mime_type).unwrap());
-    }
     let response = client
         .post("http://localhost:7331/upload")
-        .headers(headers)
         .body({
-            let stream = FramedRead::new(File::open(file.path).await.unwrap(), BytesCodec::new());
+            let stream = FramedRead::new(file, BytesCodec::new());
             Body::wrap_stream(stream)
         })
         .send()
