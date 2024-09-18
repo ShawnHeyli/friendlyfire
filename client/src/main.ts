@@ -86,24 +86,26 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const playButton = document.getElementById('playButton') as HTMLButtonElement;
   playButton.addEventListener("click", async () => {
-    //@ts-ignore
-    let file: string | null = await open({
-      multiple: false,
-      filters: [{ name: 'Media', extensions: ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'ogg'] }]
-    });
-    if (file) {
-      const content = await readFile(file);
-      const type = await fileType.fileTypeFromBuffer(content);
-      if (type && type.mime.startsWith('image/')) {
-        const textInput = document.getElementById('textInput') as HTMLInputElement;
-        const text = textInput.value;
-        invoke('play_image', { path: file, text });
-      } else if (type && type.mime.startsWith('video/')) {
-        const textInput = document.getElementById('textInput') as HTMLInputElement;
-        const text = textInput.value;
-        invoke('play_video', { path: file, text });
-      } else {
-        console.error('Unsupported file type:', type ? type.mime : 'unknown');
+    if (connected) {
+      //@ts-ignore
+      let file: string | null = await open({
+        multiple: false,
+        filters: [{ name: 'Media', extensions: ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'ogg'] }]
+      });
+      if (file) {
+        const content = await readFile(file);
+        const type = await fileType.fileTypeFromBuffer(content);
+        if (type && type.mime.startsWith('image/')) {
+          const textInput = document.getElementById('textInput') as HTMLInputElement;
+          const text = textInput.value;
+          invoke('play_image', { path: file, text });
+        } else if (type && type.mime.startsWith('video/')) {
+          const textInput = document.getElementById('textInput') as HTMLInputElement;
+          const text = textInput.value;
+          invoke('play_video', { path: file, text });
+        } else {
+          console.error('Unsupported file type:', type ? type.mime : 'unknown');
+        }
       }
     }
   });
