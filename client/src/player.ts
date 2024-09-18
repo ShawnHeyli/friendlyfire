@@ -2,7 +2,6 @@ import { listen } from "@tauri-apps/api/event";
 import { displayImage, displayVideo } from "./displayMessage";
 import { debug, error, info, warn } from "@tauri-apps/plugin-log";
 import { forwardConsole, forwardUnhandledRejection } from "./log";
-import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 
 forwardConsole('log', debug);
 forwardConsole('debug', debug);
@@ -14,14 +13,14 @@ forwardUnhandledRejection(error);
 
 window.addEventListener("DOMContentLoaded", async () => {
 
-  listen<PlayImageMessage>('playImage', (data) => {
+  listen<PlayImageMessage>('playImage', async (data) => {
     const payload: PlayImageMessage = data.payload;
-    displayImage(payload);
+    await displayImage(payload);
   });
 
-  listen<PlayVideoMessage>('playVideo', (data) => {
+  listen<PlayVideoMessage>('playVideo', async (data) => {
     const payload: PlayVideoMessage = data.payload;
-    displayVideo(payload);
+    await displayVideo(payload);
   });
 });
 

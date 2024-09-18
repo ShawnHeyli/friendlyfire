@@ -16,6 +16,8 @@
     "core:window:allow-set-size",
     "dialog:default",
     "fs:default",
+    "core:window:default",
+    "core:window:allow-set-position",
     {
       "identifier": "http:default",
       "allow": [
