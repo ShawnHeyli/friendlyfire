@@ -12,6 +12,16 @@ html {
   text-align: center;
 }
 
+#message-img {
+  max-width:100%;
+  max-height:100%;
+}
+
+#message-video {
+  max-width:100%;
+  max-height:100%;
+}
+
 #message-text {
   position: absolute;
   top: 80%;
