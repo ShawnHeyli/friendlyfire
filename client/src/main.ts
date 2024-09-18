@@ -89,7 +89,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     //@ts-ignore
     let file: string | null = await open({
       multiple: false,
-      filters: [{ name: 'Image', extensions: ['jpg', 'jpeg', 'png', 'gif'] }, { name: 'Video', extensions: ['mp4', 'webm', 'ogg'] }]
+      filters: [{ name: 'Media', extensions: ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'ogg'] }]
     });
     if (file) {
       const content = await readFile(file);
