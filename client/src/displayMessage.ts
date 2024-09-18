@@ -1,4 +1,4 @@
-import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
+import { currentMonitor, getCurrentWindow, LogicalPosition, LogicalSize } from "@tauri-apps/api/window";
 
 function displayText(text: string) {
   var element = document.getElementById('message-text') as HTMLSpanElement;
@@ -38,7 +38,7 @@ function generateVideo(src: string) {
 }
 
 var timeout: number | undefined;
-export function displayImage(message: PlayImageMessage) {
+export async function displayImage(message: PlayImageMessage) {
   if (timeout) {
     clearTimeout(timeout);
   }
@@ -48,16 +48,24 @@ export function displayImage(message: PlayImageMessage) {
   }, 8 * 1000);
 
   const window = getCurrentWindow();
+  const monitor = await currentMonitor();
+  const size = monitor!.size;
+
   window.setSize(new LogicalSize(message.width, message.height));
+  window.setPosition(new LogicalPosition(size.width * 0.85, size.height * 0.02));
   window.show()
-  
+
   displayText(message.text)
   generateImage(message.remotePath);
 }
 
-export function displayVideo(message: PlayVideoMessage) {
+export async function displayVideo(message: PlayVideoMessage) {
   const window = getCurrentWindow();
+  const monitor = await currentMonitor();
+  const size = monitor!.size;
+
   window.setSize(new LogicalSize(message.width, message.height));
+  window.setPosition(new LogicalPosition(size.width * 0.85, size.height * 0.02));
   window.show()
 
   displayText(message.text)
