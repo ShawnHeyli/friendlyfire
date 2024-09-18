@@ -4,7 +4,7 @@ use log::{debug, info};
 use play::image::{self, ImagePayload};
 use play::video::{self, VideoPayload};
 use play::{upload_file, Sendable};
-use tauri::{AppHandle, Url};
+use tauri::{AppHandle, Manager, Url, WebviewWindow};
 use tauri_plugin_log::fern::colors::ColoredLevelConfig;
 use tokio::fs::File;
 use tokio_tungstenite::tungstenite::Message;
@@ -63,10 +63,12 @@ async fn send_ws_string(message: String) {
 }
 
 #[tauri::command]
-async fn play_image(path: PathBuf, text: String) {
+async fn play_image(handle: AppHandle, path: PathBuf, text: String) {
     info!("{:?}", path);
     let file = File::open(&path).await.unwrap();
     let (width, height) = image::dimensions(&path).unwrap();
+    let window = handle.get_webview_window("player").unwrap();
+    let (width, height) = calculate_image_size(&window, width, height);
     let remote_path = upload_file(file).await;
     debug!("Received remote_path '{}' from the server", remote_path);
     let remote_path =
@@ -76,13 +78,38 @@ async fn play_image(path: PathBuf, text: String) {
 }
 
 #[tauri::command]
-async fn play_video(path: PathBuf, text: String) {
+async fn play_video(handle: AppHandle, path: PathBuf, text: String) {
     let file = File::open(&path).await.unwrap();
     let (width, height) = video::dimensions(&path).unwrap();
+    let window = handle.get_webview_window("player").unwrap();
+    let (width, height) = calculate_image_size(&window, width, height);
     let remote_path = upload_file(file).await;
     debug!("Received remote_path '{}' from the server", remote_path);
     let remote_path =
         Url::parse(format!("http://localhost:7331/uploads/{}", remote_path).as_str()).unwrap();
     let payload = VideoPayload::new(remote_path, text.clone(), width, height);
     payload.send().await;
+}
+
+fn calculate_image_size(
+    window: &WebviewWindow,
+    original_width: f64,
+    original_height: f64,
+) -> (f64, f64) {
+    let binding = window.current_monitor().unwrap().unwrap();
+    let screen_size = binding.size();
+    let screen_width = screen_size.width as f64;
+    let screen_height = screen_size.height as f64;
+
+    let aspect_ratio = original_width / original_height;
+    let max_width = screen_width * 0.4;
+    let max_height = screen_height * 0.4;
+
+    let (width, height) = if original_width > original_height {
+        (max_width, max_width / aspect_ratio)
+    } else {
+        (max_height * aspect_ratio, max_height)
+    };
+
+    (width, height)
 }
