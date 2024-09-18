@@ -105,10 +105,14 @@ fn calculate_image_size(
     let max_width = screen_width * 0.4;
     let max_height = screen_height * 0.4;
 
-    let (width, height) = if original_width > original_height {
-        (max_width, max_width / aspect_ratio)
+    let (width, height) = if original_width > max_width || original_height > max_height {
+        if original_width > original_height {
+            (max_width, max_width / aspect_ratio)
+        } else {
+            (max_height * aspect_ratio, max_height)
+        }
     } else {
-        (max_height * aspect_ratio, max_height)
+        (original_width, original_height)
     };
 
     (width, height)
