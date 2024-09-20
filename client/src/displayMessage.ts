@@ -37,7 +37,8 @@ function generateVideo(src: string) {
   });
 }
 
-var timeout: number | undefined;
+let timeout: number | NodeJS.Timeout | undefined;
+
 export async function displayImage(message: PlayImageMessage) {
   if (timeout) {
     clearTimeout(timeout);
