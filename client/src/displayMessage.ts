@@ -1,4 +1,5 @@
 import { currentMonitor, getCurrentWindow, LogicalPosition, LogicalSize } from "@tauri-apps/api/window";
+import { moveWindow, Position } from '@tauri-apps/plugin-positioner';
 
 function displayText(text: string) {
   var element = document.getElementById('message-text') as HTMLSpanElement;
@@ -49,11 +50,9 @@ export async function displayImage(message: PlayImageMessage) {
   }, 8 * 1000);
 
   const window = getCurrentWindow();
-  const monitor = await currentMonitor();
-  const size = monitor!.size;
 
   window.setSize(new LogicalSize(message.width, message.height));
-  window.setPosition(new LogicalPosition(size.width * 0.85, size.height * 0.02));
+  moveWindow(Position.TopRight);
   window.show()
 
   displayText(message.text)
@@ -62,11 +61,9 @@ export async function displayImage(message: PlayImageMessage) {
 
 export async function displayVideo(message: PlayVideoMessage) {
   const window = getCurrentWindow();
-  const monitor = await currentMonitor();
-  const size = monitor!.size;
 
   window.setSize(new LogicalSize(message.width, message.height));
-  window.setPosition(new LogicalPosition(size.width * 0.85, size.height * 0.02));
+  moveWindow(Position.TopRight);
   window.show()
 
   displayText(message.text)

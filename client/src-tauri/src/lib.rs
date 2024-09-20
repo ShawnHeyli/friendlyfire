@@ -35,10 +35,16 @@ pub fn run() {
             play_image,
             play_video,
         ])
-        .setup(|_app| {
+        .setup(|app| {
+            #[cfg(desktop)]
+            app.handle()
+                .plugin(tauri_plugin_positioner::init())
+                .unwrap();
+
             rustls::crypto::ring::default_provider()
                 .install_default()
                 .expect("Failed to install rustls crypto provider");
+
             Ok(())
         })
         .run(tauri::generate_context!())
