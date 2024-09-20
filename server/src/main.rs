@@ -5,7 +5,7 @@ use axum::{
         ConnectInfo, DefaultBodyLimit, Path, State, WebSocketUpgrade,
     },
     http::StatusCode,
-    response::{Html, IntoResponse, Response},
+    response::{Html, IntoResponse},
     routing::{get, post},
     Router,
 };
@@ -32,8 +32,16 @@ async fn main() {
         .route("/uploads/:asset", get(serve_asset))
         .into_make_service_with_connect_info::<SocketAddr>();
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:7331").await.unwrap();
-    axum::serve(listener, routes).await.unwrap();
+    match tokio::net::TcpListener::bind("0.0.0.0:7331").await {
+        Ok(listener) => {
+            if let Err(e) = axum::serve(listener, routes).await {
+                eprintln!("Server error: {:?}", e);
+            }
+        }
+        Err(e) => {
+            eprintln!("Failed to bind to address: {:?}", e);
+        }
+    }
 }
 
 struct AppState {
@@ -56,22 +64,36 @@ async fn healthcheck(ConnectInfo(addr): ConnectInfo<SocketAddr>) -> impl IntoRes
 async fn upload(ConnectInfo(addr): ConnectInfo<SocketAddr>, body: Bytes) -> impl IntoResponse {
     println!("{} accessed /upload", addr);
     let filename = Alphanumeric.sample_string(&mut rand::thread_rng(), 24);
-    let mut file = File::create(format!("uploads/{}", &filename))
-        .await
-        .unwrap();
-    file.write_all(&body).await.unwrap();
-    // Delete the file after 2min
-    let filename_clone = filename.clone();
-    tokio::spawn(async {
-        let filename = filename_clone;
-        sleep(Duration::from_secs(120)).await;
-        fs::remove_file(format!("uploads/{}", &filename))
-            .await
-            .expect("Unable to delete file");
-        println!("File deleted: {}", &filename);
-    });
+    match File::create(format!("uploads/{}", &filename)).await {
+        Ok(mut file) => {
+            if let Err(e) = file.write_all(&body).await {
+                eprintln!("Failed to write file: {:?}", e);
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Failed to write file".to_string(),
+                );
+            }
+            // Delete the file after 2min
+            let filename_clone = filename.clone();
+            tokio::spawn(async move {
+                sleep(Duration::from_secs(120)).await;
+                if let Err(e) = fs::remove_file(format!("uploads/{}", &filename_clone)).await {
+                    eprintln!("Unable to delete file: {:?}", e);
+                } else {
+                    println!("File deleted: {}", &filename_clone);
+                }
+            });
 
-    (StatusCode::OK, filename)
+            (StatusCode::OK, filename)
+        }
+        Err(e) => {
+            eprintln!("Failed to create file: {:?}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Failed to create file".to_string(),
+            )
+        }
+    }
 }
 
 async fn serve_asset(
@@ -111,13 +133,14 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
 
     loop {
         tokio::select! {
-            msg = socket.recv() => {
-                println!("{:?}", msg);
+            msg= socket.recv() => {
                 if let Some(Ok(msg)) = msg{
                     match msg{
                         Message::Text(msg) => {
                             println!("Received socket: {:?}", &msg);
-                            tx.send(Message::Text(msg)).unwrap();
+                            if let Err(e) = tx.send(Message::Text(msg)) {
+                                eprintln!("Failed to send message: {:?}", e);
+                            }
                         },
                         Message::Binary(msg) =>
                             println!("Received socket: {:?}", &msg),
@@ -141,6 +164,11 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
             msg = rx.recv() => {
                 if let Ok(msg) = msg {
                     println!("Received channel: {:?}", &msg);
+                    if let Err(e) = socket.send(msg.clone()).await {
+                        println!("Failed to send message: {:?}", e);
+                        handle_client_disconnect(tx.clone());
+                        break;
+                    }
                     socket.send(msg.clone()).await.unwrap();
                     println!("Sent socket: {:?}", &msg);
                 }
@@ -151,18 +179,20 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
 
 fn handle_client_connect(tx: Sender<Message>) {
     let client_count = tx.receiver_count();
-    tx.send(Message::Text(format!(
+    if let Err(e) = tx.send(Message::Text(format!(
         "update_client_count;{}",
         client_count
-    )))
-    .unwrap();
+    ))) {
+        eprintln!("Failed to send client count update: {:?}", e);
+    }
 }
 
 fn handle_client_disconnect(tx: Sender<Message>) {
     let client_count = tx.receiver_count();
-    tx.send(Message::Text(format!(
+    if let Err(e) = tx.send(Message::Text(format!(
         "update_client_count;{}",
         client_count - 1
-    )))
-    .unwrap();
+    ))) {
+        eprintln!("Failed to send client count update: {:?}", e);
+    }
 }
