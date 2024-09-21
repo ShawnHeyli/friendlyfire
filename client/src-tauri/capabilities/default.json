@@ -10,10 +10,7 @@
       "identifier": "http:default",
       "allow": [
         {
-          "url": "http://localhost:7331/*"
-        },
-        {
-          "url": "https://localhost:7331/*"
+          "url": "https://**"
         }
       ]
     },
