@@ -39,12 +39,12 @@ pub fn run() {
 }
 
 #[tauri::command]
-async fn connect_to_server(handle: AppHandle, url: String) -> Result<(), String> {
+async fn connect_to_server(handle: AppHandle, domain: String) -> Result<(), String> {
     let mutex_state = handle.state::<Mutex<ConnectionState>>();
     let mut state = mutex_state.lock().await;
 
     if state.ws_connection.is_none() {
-        let (ws, _) = connect_async(url)
+        let (ws, _) = connect_async(format!("wss://{}/ws", domain))
             .await
             .inspect(|(_, _)| info!("Successfully connected to the server"))
             .unwrap();
