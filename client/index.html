@@ -11,18 +11,39 @@
 
 <body>
   <div class="container mx-auto p-4">
-    <h1 class="text-3xl font-bold mb-4">Command Center</h1>
+    <div class="navbar bg-base-100">
+      <div class="flex-1">
+        <a class="btn btn-ghost text-xl">Command Center</a>
+      </div>
+      <div class="flex-none gap-2">
+        <div class="form-control">
+          <input id="usernameInput" type="text" placeholder="Username" class="input input-bordered w-24 md:w-auto" />
+        </div>
+        <div class="avatar placeholder">
+          <div class="bg-neutral text-neutral-content w-12 rounded-full">
+            <span id="avatarLetter" class="text-xl md:text-4xl"></span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="card bg-base-100 shadow-xl p-4">
         <h2 class="card-title">Server Connection</h2>
+        <div class="sectionTitle flex items-center gap-2">
+          <p class="block">Server Status</p>
+          <span id="statusDot" class="relative flex h-3 w-3">
+            <span id="backDot" class="absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75" />
+            <span id="forwardDot" class="relative inline-flex h-3 w-3 rounded-full bg-gray-500" />
+          </span>
+        </div>
         <div class="form-control">
           <label class="label">
             <span class="label-text">Server URL</span>
           </label>
-          <input type="text" placeholder="https://example.com" class="input input-bordered" id="serverUrl">
+          <input id="serverInput" type="text" placeholder="https://example.com" class="input input-bordered">
         </div>
         <div class="card-actions justify-end">
-          <button class="btn btn-primary" id="serverToggle">Connect</button>
+          <button id="serverToggle" class="btn btn-primary">Connect</button>
         </div>
       </div>
     </div>
@@ -37,20 +58,20 @@
           <label class="label">
             <span class="label-text">Top Message</span>
           </label>
-          <input type="text" placeholder="Type your message here" class="input input-bordered" id="messageInput">
+          <input type="text" placeholder="Type your message here" class="input input-bordered" id="messageTopInput">
           <label class="label">
             <span class="label-text">Bottom Message</span>
           </label>
-          <input type="text" placeholder="Type your message here" class="input input-bordered" id="messageInput">
+          <input type="text" placeholder="Type your message here" class="input input-bordered" id="messageBottomInput">
         </div>
         <div class="mt-4">
           <h3 class="text-lg font-bold mb-2">Preview</h3>
           <div class="w-full h-0 pb-[50%] bg-gray-200 rounded-lg overflow-hidden">
-            <img id="mediaPreview" class="w-full h-full object-contain" src="" alt="">
+            <img id="mediaPreview" class="w-full h-full object-contain" src="#">
           </div>
         </div>
         <div class="card-actions justify-end mt-4">
-          <button class="btn btn-primary" id="sendMediaBtn">Fire !!</button>
+          <button class="btn btn-primary" id="mediaSendButton">Fire !!</button>
         </div>
       </div>
     </div>
