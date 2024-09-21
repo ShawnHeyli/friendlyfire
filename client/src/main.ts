@@ -1,18 +1,18 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { debug, error, info, warn } from '@tauri-apps/plugin-log';
-import { forwardConsole, forwardUnhandledRejection } from './log';
+import { error } from '@tauri-apps/plugin-log';
+import { forwardUnhandledRejection } from './log';
 import { open } from '@tauri-apps/plugin-dialog';
 import * as fileType from 'file-type';
 import { readFile } from '@tauri-apps/plugin-fs';
 import { initServerStatus } from './serverStatus';
 
 
-forwardConsole('log', debug);
-forwardConsole('debug', debug);
-forwardConsole('info', info);
-forwardConsole('warn', warn);
-forwardConsole('error', error);
+// forwardConsole('log', debug);
+// forwardConsole('debug', debug);
+// forwardConsole('info', info);
+// forwardConsole('warn', warn);
+// forwardConsole('error', error);
 
 forwardUnhandledRejection(error);
 
