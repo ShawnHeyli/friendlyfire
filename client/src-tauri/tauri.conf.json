@@ -1,7 +1,8 @@
 {
-  "productName": "client",
+  "$schema": "https://schema.tauri.app/config/2.0.0-rc",
+  "productName": "friendlyfire",
   "version": "0.1.0",
-  "identifier": "com.client.app",
+  "identifier": "com.friendlyfire.app",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -12,21 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "client",
-        "label": "main",
-        "width": 800,
-        "height": 600
-      },
-      {
-        "title": "player",
-        "label": "player",
-        "focus": false,
-        "transparent": true,
-        "visible": false,
-        "alwaysOnTop": true,
-        "decorations": false,
-        "url": "player.html",
-        "closable": false,
+        "title": "friendlyfire",
         "width": 800,
         "height": 600
       }
@@ -37,11 +24,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "deb",
-      "rpm",
-      "msi"
-    ],
+    "targets": "all",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
