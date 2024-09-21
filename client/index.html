@@ -10,13 +10,51 @@
 </head>
 
 <body>
-  <button class="btn">Button</button>
-  <button class="btn btn-neutral">Neutral</button>
-  <button class="btn btn-primary">Primary</button>
-  <button class="btn btn-secondary">Secondary</button>
-  <button class="btn btn-accent">Accent</button>
-  <button class="btn btn-ghost">Ghost</button>
-  <button class="btn btn-link">Link</button>
+  <div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-4">Command Center</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="card bg-base-100 shadow-xl p-4">
+        <h2 class="card-title">Server Connection</h2>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Server URL</span>
+          </label>
+          <input type="text" placeholder="https://example.com" class="input input-bordered" id="serverUrl">
+        </div>
+        <div class="card-actions justify-end">
+          <button class="btn btn-primary" id="serverToggle">Connect</button>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4">
+      <div class="card bg-base-100 shadow-xl p-4">
+        <h2 class="card-title">Send Media</h2>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Select a file</span>
+          </label>
+          <input type="file" class="file-input file-input-bordered w-full" id="mediaInput">
+          <label class="label">
+            <span class="label-text">Top Message</span>
+          </label>
+          <input type="text" placeholder="Type your message here" class="input input-bordered" id="messageInput">
+          <label class="label">
+            <span class="label-text">Bottom Message</span>
+          </label>
+          <input type="text" placeholder="Type your message here" class="input input-bordered" id="messageInput">
+        </div>
+        <div class="mt-4">
+          <h3 class="text-lg font-bold mb-2">Preview</h3>
+          <div class="w-full h-0 pb-[50%] bg-gray-200 rounded-lg overflow-hidden">
+            <img id="mediaPreview" class="w-full h-full object-contain" src="" alt="">
+          </div>
+        </div>
+        <div class="card-actions justify-end mt-4">
+          <button class="btn btn-primary" id="sendMediaBtn">Fire !!</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
