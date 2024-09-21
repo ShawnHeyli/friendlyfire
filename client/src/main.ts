@@ -1,3 +1,4 @@
+import { invoke } from "@tauri-apps/api/core";
 import { fetch } from "@tauri-apps/plugin-http";
 
 async function initStatusDot(endpoint: string, interval: number) {
@@ -73,8 +74,8 @@ function initMediaPreview() {
   const topMessage = document.getElementById("topMessage") as HTMLSpanElement;
   const bottomMessage = document.getElementById("bottomMessage") as HTMLSpanElement;
 
-  const mediaSendButton = document.getElementById("mediaSendButton") as HTMLButtonElement;
-  mediaSendButton.classList.add("btn-disabled");
+  const sendMediaButton = document.getElementById("sendMediaButton") as HTMLButtonElement;
+  sendMediaButton.classList.add("btn-disabled");
 
   mediaInput.addEventListener("change", () => {
     mediaPreview.style.display = "block";
@@ -85,7 +86,7 @@ function initMediaPreview() {
         URL.revokeObjectURL(mediaPreview.src);
       })
 
-      mediaSendButton.classList.remove("btn-disabled");
+      sendMediaButton.classList.remove("btn-disabled");
     }
   })
 
@@ -98,8 +99,18 @@ function initMediaPreview() {
   });
 }
 
+function initServerToggle(){
+  const serverToggle = document.getElementById("serverToggle") as HTMLButtonElement;
+  const serverInput = document.getElementById("serverInput") as HTMLInputElement;
+
+  serverToggle.addEventListener("click", () => {
+    invoke("connect_to_server", {url: serverInput.value})
+  })
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   initStatusDot("http://localhost:7331/healthcheck", 3000);
   initUpdateAvatarPlaceHolder();
   initMediaPreview();
+  initServerToggle();
 });
