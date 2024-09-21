@@ -17,6 +17,7 @@
     "@tauri-apps/plugin-log": "^2.0.0-rc.0",
     "@tauri-apps/plugin-positioner": "^2.0.0-rc.1",
     "@tauri-apps/plugin-shell": ">=2.0.0-rc.0",
+    "@tauri-apps/plugin-store": "^2.0.0-rc.1",
     "@tauri-apps/plugin-websocket": "^2.0.0-rc.0",
     "file-type": "^19.5.0"
   },

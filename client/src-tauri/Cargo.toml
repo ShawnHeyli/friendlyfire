@@ -34,6 +34,7 @@ ffmpeg-next = "7.0.4"
 rustls = { version = "0.23.12", features = ["ring", "tls12"] }
 tauri-plugin-http = "2.0.0-rc"
 tauri-plugin-fs = "=2.0.0-rc.2"
+tauri-plugin-store = "2.0.0-rc"
 
 [profile.release]
 panic = "abort" # Strip expensive panic clean-up logic
@@ -44,4 +45,3 @@ strip = true # Remove debug symbols
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-positioner = "2.0.0-rc"
-

@@ -14,6 +14,7 @@ use ws::messages::send_ws_message;
 use ws::WebSocketError;
 
 pub mod play;
+pub mod store;
 pub mod ws;
 
 pub fn run() {
@@ -28,6 +29,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_store::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             join_server,
             leave_server,
