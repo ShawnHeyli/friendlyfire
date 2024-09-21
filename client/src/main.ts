@@ -61,10 +61,45 @@ function initUpdateAvatarPlaceHolder() {
       avatarPlaceholder.textContent = '';
     }
   })
+}
 
+function initMediaPreview() {
+  const mediaInput = document.getElementById("mediaInput") as HTMLInputElement;
+  const mediaPreview = document.getElementById("mediaPreview") as HTMLImageElement;
+
+  const messageTopInput = document.getElementById("messageTopInput") as HTMLInputElement;
+  const messageBottomInput = document.getElementById("messageBottomInput") as HTMLInputElement;
+
+  const topMessage = document.getElementById("topMessage") as HTMLSpanElement;
+  const bottomMessage = document.getElementById("bottomMessage") as HTMLSpanElement;
+
+  const mediaSendButton = document.getElementById("mediaSendButton") as HTMLButtonElement;
+  mediaSendButton.classList.add("btn-disabled");
+
+  mediaInput.addEventListener("change", () => {
+    mediaPreview.style.display = "block";
+    const file = mediaInput!.files![0];
+    if (file) {
+      mediaPreview.src = URL.createObjectURL(file);
+      mediaPreview.addEventListener("load", () => {
+        URL.revokeObjectURL(mediaPreview.src);
+      })
+
+      mediaSendButton.classList.remove("btn-disabled");
+    }
+  })
+
+  messageTopInput.addEventListener("input", () => {
+    topMessage.textContent = messageTopInput.value;
+  });
+
+  messageBottomInput.addEventListener("input", () => {
+    bottomMessage.textContent = messageBottomInput.value;
+  });
 }
 
 window.addEventListener("DOMContentLoaded", () => {
   initStatusDot("http://localhost:7331/healthcheck", 3000);
   initUpdateAvatarPlaceHolder();
+  initMediaPreview();
 });
