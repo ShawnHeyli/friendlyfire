@@ -1,5 +1,8 @@
+import { open } from "@tauri-apps/plugin-dialog";
+import { readFile } from "@tauri-apps/plugin-fs";
+
 export function initMediaPreview() {
-  const mediaInput = document.getElementById("mediaInput") as HTMLInputElement;
+  const mediaInput = document.getElementById("mediaInput") as HTMLButtonElement;
   const mediaPreview = document.getElementById("mediaPreview") as HTMLImageElement;
 
   const messageTopInput = document.getElementById("messageTopInput") as HTMLInputElement;
@@ -11,11 +14,24 @@ export function initMediaPreview() {
   const sendMediaButton = document.getElementById("sendMediaButton") as HTMLButtonElement;
   sendMediaButton.classList.add("btn-disabled");
 
-  mediaInput.addEventListener("change", () => {
-    mediaPreview.style.display = "block";
-    const file = mediaInput!.files![0];
+  mediaInput.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const file = await open({
+      multiple: false,
+      directory: false,
+      filters: [{
+        name: "Default",
+        extensions: ['png', 'jpg', 'jpeg']
+      }]
+    })
+
     if (file) {
-      mediaPreview.src = URL.createObjectURL(file);
+      mediaInput.setAttribute("data-title", "TNMT");
+      const contents = await readFile(file);
+      const blob = new Blob([contents]);
+
+      mediaPreview.src = URL.createObjectURL(blob);
+      mediaPreview.style.display = "block";
       mediaPreview.addEventListener("load", () => {
         URL.revokeObjectURL(mediaPreview.src);
       })

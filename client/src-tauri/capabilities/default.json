@@ -16,6 +16,8 @@
     },
     "core:default",
     "log:default",
-    "store:default"
+    "store:default",
+    "dialog:default",
+    "fs:default"
   ]
 }

@@ -1190,6 +1190,10 @@ html {
   .btn-primary {
     --btn-color: var(--fallback-p);
   }
+
+  .btn-neutral {
+    --btn-color: var(--fallback-n);
+  }
 }
 
 @supports (color: color-mix(in oklab, black, black)) {
@@ -1215,6 +1219,16 @@ html {
   .btn-primary {
     --btn-color: var(--p);
   }
+
+  .btn-neutral {
+    --btn-color: var(--n);
+  }
+}
+
+.btn-neutral {
+  --tw-text-opacity: 1;
+  color: var(--fallback-nc,oklch(var(--nc)/var(--tw-text-opacity)));
+  outline-color: var(--fallback-n,oklch(var(--n)/1));
 }
 
 .btn.glass {
@@ -1600,6 +1614,10 @@ html {
   }
 }
 
+.btn-wide {
+  width: 16rem;
+}
+
 .join.join-vertical {
   flex-direction: column;
 }
@@ -1756,6 +1774,10 @@ html {
   display: grid;
 }
 
+.contents {
+  display: contents;
+}
+
 .h-3 {
   height: 0.75rem;
 }
@@ -1784,8 +1806,28 @@ html {
   width: 100%;
 }
 
+.w-32 {
+  width: 8rem;
+}
+
+.w-36 {
+  width: 9rem;
+}
+
 .max-w-\[400px\] {
   max-width: 400px;
+}
+
+.max-w-xs {
+  max-width: 20rem;
+}
+
+.max-w-\[360px\] {
+  max-width: 360px;
+}
+
+.max-w-\[90\%\] {
+  max-width: 90%;
 }
 
 .flex-1 {

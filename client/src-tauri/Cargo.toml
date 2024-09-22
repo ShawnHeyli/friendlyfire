@@ -26,6 +26,8 @@ futures-util = { version = "0.3.30", features = ["sink"] }
 tauri-plugin-log = "2.0.0-rc"
 log = "0.4.22"
 tauri-plugin-store = "2.0.0-rc"
+tauri-plugin-dialog = "2.0.0-rc"
+tauri-plugin-fs = "2.0.0-rc"
 
 # According to https://v2.tauri.app/fr/concept/size/#cargo-configuration
 [profile.dev]
