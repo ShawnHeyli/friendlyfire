@@ -169,7 +169,6 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
                         handle_client_disconnect(tx.clone());
                         break;
                     }
-                    socket.send(msg.clone()).await.unwrap();
                     println!("Sent socket: {:?}", &msg);
                 }
             }
