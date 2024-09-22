@@ -77,8 +77,20 @@ async function enablePreview(filepath: string) {
 }
 
 export function initSendMedia(){
+  const usernameInput = document.getElementById('usernameInput') as HTMLInputElement;  
   const sendMediaButton = document.getElementById("sendMediaButton") as HTMLButtonElement;
+
+  const messageTopInput = document.getElementById("messageTopInput") as HTMLInputElement;
+  const messageBottomInput = document.getElementById("messageBottomInput") as HTMLInputElement;
+
+
   sendMediaButton.addEventListener("click", async () => {
-    await invoke("send_media", {filepath: file})
+    await invoke("send_media", {
+      filepath: file, 
+      topMessage: messageTopInput.value, 
+      bottomMessage: messageBottomInput.value, 
+      user: {username: usernameInput.value},
+      timeout: 8
+    })
   })
 }
