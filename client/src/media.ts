@@ -1,6 +1,9 @@
+import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
+
+let file: string | null;
 
 export function initMediaPreview() {
   const mediaInput = document.getElementById("mediaInput") as HTMLButtonElement;
@@ -16,7 +19,7 @@ export function initMediaPreview() {
 
   mediaInput.addEventListener("click", async (event) => {
     event.preventDefault();
-    const file = await open({
+    file = await open({
       multiple: false,
       directory: false,
       filters: [{
@@ -71,4 +74,11 @@ async function enablePreview(filepath: string) {
   })
 
   sendMediaButton.classList.remove("btn-disabled");
+}
+
+export function initSendMedia(){
+  const sendMediaButton = document.getElementById("sendMediaButton") as HTMLButtonElement;
+  sendMediaButton.addEventListener("click", async () => {
+    await invoke("send_media", {filepath: file})
+  })
 }

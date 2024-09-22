@@ -1,9 +1,12 @@
-use std::{borrow::Cow, time::Duration};
+use std::{borrow::Cow, io::Cursor, path::PathBuf, time::Duration};
 
 use futures_util::{stream::SplitSink, SinkExt, StreamExt};
 use log::info;
 use tauri::{AppHandle, Manager};
+use tauri_plugin_http::reqwest;
 use tokio::{
+    fs::File,
+    io::{AsyncReadExt, BufReader},
     net::TcpStream,
     sync::{broadcast, Mutex},
 };
@@ -15,15 +18,32 @@ use tokio_tungstenite::{
     },
     MaybeTlsStream, WebSocketStream,
 };
+use tokio_util::codec::{BytesCodec, FramedRead};
 
-// #[derive(Default)]
-// struct ServerState {}
+#[derive(Default)]
+struct ServerState {
+    url: Option<tauri::Url>,
+}
 
-// #[derive(Default)]
-// struct PlayerState {}
+impl ServerState {
+    fn upload_url(&self) -> Option<reqwest::Url> {
+        self.url.as_ref().map(|url| {
+            let mut url = url.clone();
+            url.set_scheme("https").unwrap();
+            url.set_path("upload");
+            url
+        })
+    }
 
-// #[derive(Default)]
-// struct MediaState {}
+    fn ws_url(&self) -> Option<reqwest::Url> {
+        self.url.as_ref().map(|url| {
+            let mut url = url.clone();
+            url.set_scheme("wss").unwrap();
+            url.set_path("ws");
+            url
+        })
+    }
+}
 
 #[derive(Default)]
 struct ConnectionState {
@@ -48,9 +68,11 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .invoke_handler(tauri::generate_handler![
             connect_to_server,
-            disconnect_from_server
+            disconnect_from_server,
+            send_media
         ])
         .setup(|app| {
+            app.manage(Mutex::new(ServerState::default()));
             app.manage(Mutex::new(ConnectionState::default()));
             Ok(())
         })
@@ -60,6 +82,10 @@ pub fn run() {
 
 #[tauri::command]
 async fn connect_to_server(handle: AppHandle, domain: String) -> Result<(), String> {
+    let mutex_state = handle.state::<Mutex<ServerState>>();
+    let mut state = mutex_state.lock().await;
+    state.url = Some(reqwest::Url::parse(format!("https://{}", domain).as_str()).unwrap());
+
     let mutex_state = handle.state::<Mutex<ConnectionState>>();
     let mut state = mutex_state.lock().await;
 
@@ -136,4 +162,26 @@ async fn disconnect_from_server(handle: AppHandle) {
         kill_channel.send(()).unwrap();
         state.kill_channel = None;
     }
+
+    let mutex_state = handle.state::<Mutex<ServerState>>();
+    let mut state = mutex_state.lock().await;
+    state.url = None;
+}
+
+#[tauri::command]
+async fn send_media(handle: AppHandle, filepath: PathBuf) {
+    let file = File::open(filepath).await.unwrap();
+    let stream = FramedRead::new(file, BytesCodec::new());
+    let body = reqwest::Body::wrap_stream(stream);
+
+    let mutex_state = handle.state::<Mutex<ServerState>>();
+    let state = mutex_state.lock().await;
+
+    if let Some(url) = state.upload_url().clone() {
+        let client = reqwest::Client::new();
+        let res = client.post(url).body(body).send().await.unwrap();
+        println!("Response: {:?}", res);
+    }
+
+    // File uploaded on the server
 }
