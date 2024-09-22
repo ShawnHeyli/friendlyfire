@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { fetch } from "@tauri-apps/plugin-http";
+import { Store } from "@tauri-apps/plugin-store";
 
 async function pingStatusDot(endpoint: string) {
   const forwardDot = document.getElementById('forwardDot') as HTMLSpanElement
@@ -132,13 +133,52 @@ function initServerToggle() {
   })
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+function initPingStatus(){
+  const endpoint = "https://" + getServerDomain() + "/healthcheck";
+  pingStatusDot(endpoint)
   setInterval(() => {
     const endpoint = "https://" + getServerDomain() + "/healthcheck";
-    console.log(endpoint)
     pingStatusDot(endpoint)
   }, 3000)
+}
+
+async function restoreStoreValues(store: Store){
+  const usernameInput = document.getElementById("usernameInput") as HTMLInputElement;
+  const serverInput = document.getElementById("serverInput") as HTMLInputElement;
+
+  const username = await store.get<string>('username');
+  const url= await store.get<string>('url');
+
+  if(username){
+    usernameInput.value = username;
+  }
+
+  if(url){
+    serverInput.value = url;
+  }
+}
+
+function initStoredValues(store: Store){
+  const usernameInput = document.getElementById("usernameInput") as HTMLInputElement;
+  const serverInput = document.getElementById("serverInput") as HTMLInputElement;
+
+  usernameInput.addEventListener("change", async () => {
+    await store.set("username", usernameInput.value);
+    await store.save();
+  })
+
+  serverInput.addEventListener("change", async () => {
+    await store.set("url", serverInput.value);
+    await store.save();
+  })
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const store = new Store('store.bin');
+  restoreStoreValues(store);
+  initPingStatus();
   initUpdateAvatarPlaceHolder();
   initMediaPreview();
   initServerToggle();
+  initStoredValues(store);
 });

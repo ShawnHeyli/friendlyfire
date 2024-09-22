@@ -15,6 +15,7 @@
       ]
     },
     "core:default",
-    "log:default"
+    "log:default",
+    "store:default"
   ]
 }

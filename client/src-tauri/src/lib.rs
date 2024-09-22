@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt::Debug, time::Duration};
+use std::{borrow::Cow, time::Duration};
 
 use futures_util::{stream::SplitSink, SinkExt, StreamExt};
 use log::info;
@@ -36,6 +36,7 @@ pub type WebSocketSplitSink = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .level(log::LevelFilter::Debug)
