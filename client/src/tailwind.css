@@ -1745,6 +1745,10 @@ html {
   top: 0px;
 }
 
+.m-0 {
+  margin: 0px;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -1790,6 +1794,10 @@ html {
   max-height: 400px;
 }
 
+.max-h-96 {
+  max-height: 24rem;
+}
+
 .w-12 {
   width: 3rem;
 }
@@ -1828,6 +1836,10 @@ html {
 
 .max-w-\[90\%\] {
   max-width: 90%;
+}
+
+.max-w-96 {
+  max-width: 24rem;
 }
 
 .flex-1 {
@@ -1932,6 +1944,10 @@ html {
 
 .p-4 {
   padding: 1rem;
+}
+
+.p-0 {
+  padding: 0px;
 }
 
 .py-4 {

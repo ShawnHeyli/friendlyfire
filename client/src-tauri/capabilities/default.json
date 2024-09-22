@@ -3,7 +3,8 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": [
-    "main"
+    "command-center",
+    "player"
   ],
   "permissions": [
     {
@@ -18,6 +19,7 @@
     "log:default",
     "store:default",
     "dialog:default",
-    "fs:default"
+    "fs:default",
+    "core:window:allow-set-size"
   ]
 }

@@ -13,9 +13,15 @@
     "withGlobalTauri": true,
     "windows": [
       {
+        "label": "command-center",
         "title": "friendlyfire",
         "width": 800,
         "height": 600
+      },
+      {
+        "label": "player",
+        "title": "player",
+        "url": "./player.html"
       }
     ],
     "security": {

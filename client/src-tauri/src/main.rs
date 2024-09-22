@@ -4,7 +4,9 @@
 use std::env;
 
 fn main() {
+    #[cfg(target_os = "linux")]
     env::set_var("GDK_BACKEND", "x11");
+    #[cfg(target_os = "linux")]
     env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
 
     friendlyfire_lib::run()
