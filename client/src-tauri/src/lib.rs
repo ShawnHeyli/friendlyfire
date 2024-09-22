@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{borrow::Cow, fmt::Debug, time::Duration};
 
 use futures_util::{stream::SplitSink, SinkExt, StreamExt};
 use log::info;
@@ -7,7 +7,14 @@ use tokio::{
     net::TcpStream,
     sync::{broadcast, Mutex},
 };
-use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::{
+    connect_async,
+    tungstenite::{
+        protocol::{frame::coding::CloseCode, CloseFrame},
+        Message,
+    },
+    MaybeTlsStream, WebSocketStream,
+};
 
 // #[derive(Default)]
 // struct ServerState {}
@@ -35,7 +42,10 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_http::init())
-        .invoke_handler(tauri::generate_handler![connect_to_server])
+        .invoke_handler(tauri::generate_handler![
+            connect_to_server,
+            disconnect_from_server
+        ])
         .setup(|app| {
             app.manage(Mutex::new(ConnectionState::default()));
             Ok(())
@@ -97,6 +107,29 @@ async fn connect_to_server(handle: AppHandle, domain: String) -> Result<(), Stri
                 }
             }
         });
-    };
-    Ok(())
+        Ok(())
+    } else {
+        Err("Connection has already been set".to_string())
+    }
+}
+
+#[tauri::command]
+async fn disconnect_from_server(handle: AppHandle) {
+    let mutex_state = handle.state::<Mutex<ConnectionState>>();
+    let mut state = mutex_state.lock().await;
+
+    if let Some(ws) = &mut state.ws_connection {
+        ws.send(Message::Close(Some(CloseFrame {
+            code: CloseCode::Normal,
+            reason: Cow::Borrowed("User disconnecting"),
+        })))
+        .await
+        .unwrap();
+        state.ws_connection = None;
+    }
+
+    if let Some(kill_channel) = &mut state.kill_channel {
+        kill_channel.send(()).unwrap();
+        state.kill_channel = None;
+    }
 }

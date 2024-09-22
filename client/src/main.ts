@@ -111,11 +111,24 @@ function getServerDomain(): string {
 }
 
 function initServerToggle() {
+  let connected = false;
   const serverToggle = document.getElementById("serverToggle") as HTMLButtonElement;
 
-  serverToggle.addEventListener("click", () => {
-    let domain = getServerDomain()
-    invoke("connect_to_server", { domain })
+  serverToggle.addEventListener("click", async () => {
+    if (!connected) {
+      let domain = getServerDomain()
+      await invoke("connect_to_server", { domain }).then(() => {
+        console.log("pitie")
+        serverToggle.textContent= "Disconnect"
+        connected = true;
+      })
+    }
+    else {
+      await invoke("disconnect_from_server").then(() => {
+        serverToggle.textContent = "Connect"
+        connected = false;
+      })
+    }
   })
 }
 
