@@ -1,4 +1,5 @@
 import { getServerDomain } from "./server";
+import { fetch } from "@tauri-apps/plugin-http";
 
 export function initPingStatus() {
   const endpoint = "https://" + getServerDomain() + "/healthcheck";
