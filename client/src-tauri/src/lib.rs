@@ -1,7 +1,12 @@
-use futures_util::{stream::SplitSink, StreamExt};
+use std::time::Duration;
+
+use futures_util::{stream::SplitSink, SinkExt, StreamExt};
 use log::info;
 use tauri::{AppHandle, Manager};
-use tokio::{net::TcpStream, sync::Mutex};
+use tokio::{
+    net::TcpStream,
+    sync::{broadcast, Mutex},
+};
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
 // #[derive(Default)]
@@ -16,6 +21,7 @@ use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, Web
 #[derive(Default)]
 struct ConnectionState {
     ws_connection: Option<WebSocketSplitSink>,
+    kill_channel: Option<broadcast::Sender<()>>,
 }
 
 pub type WebSocketSplitSink = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>;
@@ -49,14 +55,46 @@ async fn connect_to_server(handle: AppHandle, domain: String) -> Result<(), Stri
             .inspect(|(_, _)| info!("Successfully connected to the server"))
             .unwrap();
         let (write, mut read) = ws.split();
-
         state.ws_connection = Some(write);
 
+        // kill channel
+        let (sender, _) = broadcast::channel::<()>(8);
+        state.kill_channel = Some(sender.clone());
+
         // Spawn a task to handle incoming messages from the server
-        tokio::spawn(async move {
-            while let Some(_msg) = read.next().await {
-                // Handle incoming messages here
-                todo!();
+        let mut listener_kill = sender.subscribe();
+        tauri::async_runtime::spawn(async move {
+            loop {
+                tokio::select! {
+                    msg = read.next() => {
+                        println!("{:?}", msg);
+                    }
+                    _ = listener_kill.recv() => {
+                        break;
+                    }
+                }
+            }
+        });
+
+        // Spawn a task to handle incoming messages from the server
+        let mut keepalive_kill = sender.subscribe();
+        let handle_clone = handle.clone();
+        tauri::async_runtime::spawn(async move {
+            let mut interval = tokio::time::interval(Duration::from_secs(10));
+            loop {
+                tokio::select! {
+                _ = interval.tick() => {
+                    let mutex_state = handle_clone.state::<Mutex<ConnectionState>>();
+                    let mut state = mutex_state.lock().await;
+                    if let Some(ws_sink) = &mut state.ws_connection {
+                        ws_sink.send(Message::Ping(vec![])).await.unwrap();
+                    }
+
+                }
+                _ = keepalive_kill.recv() => {
+                        break;
+                    }
+                }
             }
         });
     };
