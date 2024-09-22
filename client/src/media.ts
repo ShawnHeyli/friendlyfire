@@ -1,9 +1,9 @@
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 
 export function initMediaPreview() {
   const mediaInput = document.getElementById("mediaInput") as HTMLButtonElement;
-  const mediaPreview = document.getElementById("mediaPreview") as HTMLImageElement;
 
   const messageTopInput = document.getElementById("messageTopInput") as HTMLInputElement;
   const messageBottomInput = document.getElementById("messageBottomInput") as HTMLInputElement;
@@ -26,17 +26,7 @@ export function initMediaPreview() {
     })
 
     if (file) {
-      mediaInput.setAttribute("data-title", "TNMT");
-      const contents = await readFile(file);
-      const blob = new Blob([contents]);
-
-      mediaPreview.src = URL.createObjectURL(blob);
-      mediaPreview.style.display = "block";
-      mediaPreview.addEventListener("load", () => {
-        URL.revokeObjectURL(mediaPreview.src);
-      })
-
-      sendMediaButton.classList.remove("btn-disabled");
+      await enablePreview(file);
     }
   })
 
@@ -47,4 +37,38 @@ export function initMediaPreview() {
   messageBottomInput.addEventListener("input", () => {
     bottomMessage.textContent = messageBottomInput.value;
   });
+}
+
+export async function initDropListener() {
+  document.body.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
+  document.body.addEventListener('drop', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
+  await getCurrentWebview().onDragDropEvent((event) => {
+    if (event.payload.type == "drop") {
+      enablePreview(event.payload.paths[0]);
+    }
+  });
+}
+
+async function enablePreview(filepath: string) {
+  const mediaPreview = document.getElementById("mediaPreview") as HTMLImageElement;
+  const sendMediaButton = document.getElementById("sendMediaButton") as HTMLButtonElement;
+
+  const contents = await readFile(filepath);
+  const blob = new Blob([contents]);
+
+  mediaPreview.src = URL.createObjectURL(blob);
+  mediaPreview.style.display = "block";
+  mediaPreview.addEventListener("load", () => {
+    URL.revokeObjectURL(mediaPreview.src);
+  })
+
+  sendMediaButton.classList.remove("btn-disabled");
 }
