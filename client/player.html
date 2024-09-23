@@ -11,7 +11,16 @@
 </head>
 
 <body class="m-0 p-0 max-w-[400px] max-h-[400px]">
-  <img id="img" class="object-contain" src="#">
+  <div class="relative">
+    <img id="mediaPreview" class="max-w-[400px] max-h-[400px] object-contain" src="#" />
+    <span id="topMessage"
+      class="absolute w-full font-mono py-4 top-0 inset-x-0 text-2xl font-bold text-center text-yellow-400">
+    </span>
+    <span id="bottomMessage"
+      class="absolute w-full font-mono py-4 bottom-0 inset-x-0 text-2xl font-bold text-center text-yellow-400">
+    </span>
+  </div>
+
 </body>
 
 </html>
