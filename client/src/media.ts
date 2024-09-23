@@ -90,7 +90,7 @@ export function initSendMedia(){
       topMessage: messageTopInput.value, 
       bottomMessage: messageBottomInput.value, 
       user: {username: usernameInput.value},
-      timeout: 8
+      timeout: 8000
     })
   })
 }
