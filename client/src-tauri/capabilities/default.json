@@ -20,6 +20,8 @@
     "store:default",
     "dialog:default",
     "fs:default",
-    "core:window:allow-set-size"
+    "core:window:allow-set-size",
+    "core:window:allow-show",
+    "core:window:allow-hide"
   ]
 }
