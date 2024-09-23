@@ -1,13 +1,9 @@
-use std::{
-    borrow::Cow,
-    path::PathBuf,
-    time::{self, Duration},
-};
+use std::{borrow::Cow, path::PathBuf, time::Duration};
 
 use futures_util::{stream::SplitSink, SinkExt, StreamExt};
 use log::info;
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_http::reqwest;
 use tokio::{
     fs::File,
@@ -66,13 +62,13 @@ struct ConnectionState {
 
 pub type WebSocketSplitSink = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 struct MediaMessage {
     media_url: tauri::Url,
     top_message: String,
     bottom_message: String,
     sender: User,
-    timeout: time::Duration,
+    timeout: u64, // in milliseconds
 }
 
 impl From<MediaMessage> for Message {
@@ -81,7 +77,7 @@ impl From<MediaMessage> for Message {
     }
 }
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 struct User {
     // avatar_url: Option<tauri::Url>,
     username: String,
@@ -106,6 +102,14 @@ pub fn run() {
             send_media
         ])
         .setup(|app| {
+            tauri::WebviewWindowBuilder::new(
+                app,
+                "player",
+                tauri::WebviewUrl::App("player.html".into()),
+            )
+            .visible(false)
+            .build()?;
+
             app.manage(Mutex::new(ServerState::default()));
             app.manage(Mutex::new(ConnectionState::default()));
             Ok(())
@@ -138,11 +142,25 @@ async fn connect_to_server(handle: AppHandle, domain: String) -> Result<(), Stri
 
         // Spawn a task to handle incoming messages from the server
         let mut listener_kill = sender.subscribe();
+        let handle_clone = handle.clone();
         tauri::async_runtime::spawn(async move {
             loop {
                 tokio::select! {
                     msg = read.next() => {
-                        println!("{:?}", msg);
+                        match msg {
+                            Some(Ok(message)) => {
+                                if let Ok(value)= serde_json::from_str::<MediaMessage>(&message.to_string()){
+                                    println!("{:?}", value);
+                                    handle_clone.emit_to("player", "ff://media_play", value).unwrap();
+                                }
+                            }
+                            Some(Err(_error)) => {
+                                // handle error
+                            }
+                            None => {
+                                // handle end of stream
+                            }
+                        }
                     }
                     _ = listener_kill.recv() => {
                         break;
@@ -236,7 +254,7 @@ async fn send_media(
                 top_message,
                 bottom_message,
                 sender: user,
-                timeout: time::Duration::from_secs(timeout),
+                timeout,
             };
             ws.send(message.into()).await.unwrap();
         }

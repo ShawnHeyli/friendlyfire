@@ -1,16 +1,26 @@
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { currentMonitor, PhysicalSize } from "@tauri-apps/api/window";
+import { LogicalSize } from "@tauri-apps/api/window";
 
-const message = {
-  mediaUrl: "https://images.unsplash.com/photo-1726828581304-1bd8a2b90246?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  topMessage: "Ye",
-  bottomMessage: "Lol",
-  user: { username: "Pipou" },
-  timeout: 8
+type MediaMessage = {
+  media_url: string,
+  top_message: string,
+  bottom_message: string,
+  sender: User,
+  timeout: number,
 }
 
-window.addEventListener("DOMContentLoaded", async () => {
-  const img = document.getElementById('img') as HTMLImageElement;
+type User = {
+  username: string
+}
+
+listen<MediaMessage>("ff://media_play", (event) => {
+  const message = event.payload;
+  console.log(message)
+  const img = document.getElementById('mediaPreview') as HTMLImageElement;
+  const topMessage = document.getElementById("topMessage") as HTMLSpanElement;
+  const bottomMessage = document.getElementById("bottomMessage") as HTMLSpanElement;
+
   img.addEventListener("load", async () => {
     const width = img.naturalWidth;
     const height = img.naturalHeight;
@@ -24,12 +34,21 @@ window.addEventListener("DOMContentLoaded", async () => {
       newWidth = Math.floor((width / height) * 400);
     }
 
-    console.log(`Image width: ${newWidth}, height: ${newHeight}`);
     const window = getCurrentWebviewWindow();
-    const monitor = await currentMonitor()
-    const scaleFactor = monitor!.scaleFactor;
-    await window.setSize(new PhysicalSize(400, 400).toLogical(scaleFactor))
-  })
-  img.src = message.mediaUrl;
+    await window.setSize(new LogicalSize(newWidth, newHeight))
+    await window.show();
 
-});
+    setTimeout(async () => {
+      topMessage.innerText = "";
+      bottomMessage.innerText = "";
+      img.src = "";
+      await window.hide();
+    }, message.timeout)
+  })
+
+  topMessage.innerText = message.top_message;
+  bottomMessage.innerText = message.bottom_message;
+  img.src = message.media_url;
+
+})
+
