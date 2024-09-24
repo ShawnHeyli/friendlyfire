@@ -82,7 +82,7 @@ export function initSendMedia(){
 
   const messageTopInput = document.getElementById("messageTopInput") as HTMLInputElement;
   const messageBottomInput = document.getElementById("messageBottomInput") as HTMLInputElement;
-
+  const timeoutRange = document.getElementById("timeoutRange") as HTMLInputElement;
 
   sendMediaButton.addEventListener("click", async () => {
     await invoke("send_media", {
@@ -90,7 +90,7 @@ export function initSendMedia(){
       topMessage: messageTopInput.value, 
       bottomMessage: messageBottomInput.value, 
       user: {username: usernameInput.value},
-      timeout: 8000
+      timeout: parseInt(timeoutRange.value) * 1000
     })
   })
 }
