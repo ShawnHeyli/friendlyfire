@@ -1,26 +1,54 @@
 import { listen } from "@tauri-apps/api/event";
-import { displayImage, displayVideo } from "./displayMessage";
-import { error } from "@tauri-apps/plugin-log";
-import { forwardUnhandledRejection } from "./log";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { LogicalSize } from "@tauri-apps/api/window";
 
-// forwardConsole('log', debug);
-// forwardConsole('debug', debug);
-// forwardConsole('info', info);
-// forwardConsole('warn', warn);
-// forwardConsole('error', error);
+type MediaMessage = {
+  media_url: string,
+  top_message: string,
+  bottom_message: string,
+  sender: User,
+  timeout: number,
+}
 
-forwardUnhandledRejection(error);
+type User = {
+  username: string
+}
 
-window.addEventListener("DOMContentLoaded", async () => {
+listen<MediaMessage>("ff://media_play", (event) => {
+  const message = event.payload;
+  console.log(message)
+  const img = document.getElementById('mediaPreview') as HTMLImageElement;
+  const topMessage = document.getElementById("topMessage") as HTMLSpanElement;
+  const bottomMessage = document.getElementById("bottomMessage") as HTMLSpanElement;
 
-  listen<PlayImageMessage>('playImage', async (data) => {
-    const payload: PlayImageMessage = data.payload;
-    await displayImage(payload);
-  });
+  img.addEventListener("load", async () => {
+    const width = img.naturalWidth;
+    const height = img.naturalHeight;
 
-  listen<PlayVideoMessage>('playVideo', async (data) => {
-    const payload: PlayVideoMessage = data.payload;
-    await displayVideo(payload);
-  });
-});
+    let newWidth, newHeight;
+    if (width > height) {
+      newWidth = 400;
+      newHeight = Math.floor((height / width) * 400);
+    } else {
+      newHeight = 400;
+      newWidth = Math.floor((width / height) * 400);
+    }
+
+    const window = getCurrentWebviewWindow();
+    await window.setSize(new LogicalSize(newWidth, newHeight))
+    await window.show();
+
+    setTimeout(async () => {
+      topMessage.innerText = "";
+      bottomMessage.innerText = "";
+      img.src = "";
+      await window.hide();
+    }, message.timeout)
+  })
+
+  topMessage.innerText = message.top_message;
+  bottomMessage.innerText = message.bottom_message;
+  img.src = message.media_url;
+
+})
 

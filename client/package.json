@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "friendlyfire",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -11,20 +11,17 @@
   },
   "dependencies": {
     "@tauri-apps/api": ">=2.0.0-rc.0",
-    "@tauri-apps/plugin-dialog": "^2.0.0-rc.0",
-    "@tauri-apps/plugin-fs": "^2.0.0-rc.2",
-    "@tauri-apps/plugin-http": "^2.0.0-rc.2",
-    "@tauri-apps/plugin-log": "^2.0.0-rc.0",
-    "@tauri-apps/plugin-positioner": "^2.0.0-rc.1",
-    "@tauri-apps/plugin-shell": ">=2.0.0-rc.0",
-    "@tauri-apps/plugin-store": "^2.0.0-rc.1",
-    "@tauri-apps/plugin-websocket": "^2.0.0-rc.0",
-    "file-type": "^19.5.0"
+    "@tauri-apps/plugin-dialog": "^2.0.0-rc",
+    "@tauri-apps/plugin-fs": "^2.0.0-rc",
+    "@tauri-apps/plugin-http": "^2.0.0-rc",
+    "@tauri-apps/plugin-log": "^2.0.0-rc",
+    "@tauri-apps/plugin-store": "^2.0.0-rc",
+    "@tauri-apps/plugin-window-state": "^2.0.0-rc"
   },
   "devDependencies": {
     "@tauri-apps/cli": ">=2.0.0-rc.0",
     "daisyui": "^4.12.10",
-    "tailwindcss": "^3.4.10",
+    "tailwindcss": "^3.4.12",
     "typescript": "^5.2.2",
     "vite": "^5.3.1"
   }

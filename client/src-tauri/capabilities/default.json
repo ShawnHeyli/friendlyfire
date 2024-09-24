@@ -3,28 +3,25 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": [
-    "main",
+    "command-center",
     "player"
   ],
   "permissions": [
-    "core:app:default",
-    "core:event:default",
-    "log:default",
-    "core:window:allow-hide",
-    "core:window:allow-show",
-    "core:window:allow-set-always-on-top",
-    "core:window:allow-set-size",
-    "dialog:default",
-    "fs:default",
-    "positioner:default",
-    "store:default",
     {
       "identifier": "http:default",
       "allow": [
         {
-          "url": "http://localhost:7331/*"
+          "url": "https://**"
         }
       ]
-    }
+    },
+    "core:default",
+    "log:default",
+    "store:default",
+    "dialog:default",
+    "fs:default",
+    "core:window:allow-set-size",
+    "core:window:allow-show",
+    "core:window:allow-hide"
   ]
 }

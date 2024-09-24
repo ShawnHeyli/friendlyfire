@@ -4,18 +4,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/src/player.css" />
   <title>Tauri App</title>
   <script type="module" src="/src/player.ts" defer></script>
+  <link href="./src/tailwind.css" rel="stylesheet">
+  <link href="./src/styles.css" rel="stylesheet">
 </head>
 
-<body>
-  <div id="container">
-    <div id="message">
-    </div>
-    <span id="message-text">
+<body class="m-0 p-0 max-w-[400px] max-h-[400px]">
+  <div class="relative">
+    <img id="mediaPreview" class="max-w-[400px] max-h-[400px] object-contain" src="#" />
+    <span id="topMessage"
+      class="absolute w-full font-['Menlo'] py-4 top-0 inset-x-0 text-2xl font-black text-center text-white">
+    </span>
+    <span id="bottomMessage"
+      class="absolute w-full font-['Menlo'] py-4 bottom-0 inset-x-0 text-2xl font-black text-center text-white">
     </span>
   </div>
+
 </body>
 
 </html>

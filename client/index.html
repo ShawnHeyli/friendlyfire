@@ -1,46 +1,87 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="happyhues">
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="stylesheet" href="/src/tailwind.css" />
-  <link rel="stylesheet" href="/src/styles.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tauri App</title>
   <script type="module" src="/src/main.ts" defer></script>
+  <link href="./src/tailwind.css" rel="stylesheet">
+  <link href="./src/styles.css" rel="stylesheet">
 </head>
 
-<body class="bg-base-100">
-  <div id="commandCenter">
-    <section>
-      <div class="sectionTitle flex items-center gap-2">
-        <p class="block">Server Status</p>
-        <span id="statusDot" class="relative flex h-3 w-3">
-          <span id="backDot" class="absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
-          <span id="forwardDot" class="relative inline-flex h-3 w-3 rounded-full bg-gray-500"></span>
-        </span>
+<body>
+  <div class="container mx-auto p-4">
+    <div class="navbar bg-base-100">
+      <div class="flex-1">
+        <a class="btn btn-ghost text-xl">Command Center</a>
       </div>
-      <div>Connection Status:
-        <span id="connectionStatus">Disconnected</span>
+      <div class="flex-none gap-2">
+        <div class="form-control">
+          <input id="usernameInput" type="text" placeholder="Username" class="input input-bordered w-36 md:w-auto" />
+        </div>
+        <div class="avatar placeholder">
+          <div class="bg-neutral text-neutral-content w-12 rounded-full">
+            <span id="avatarLetter" class="text-xl md:text-4xl"></span>
+          </div>
+        </div>
       </div>
-      <div class="countdown">Number of Clients:
-        <span id="clientCount" style="--value:${counter};"></span>
+    </div>
+    <div class="grid grid-cols-1 gap-4">
+      <div class="card bg-base-100 shadow-xl p-4">
+        <h2 class="card-title">Server Connection</h2>
+        <div class="sectionTitle flex items-center gap-2">
+          <p class="block">Server Status</p>
+          <span id="statusDot" class="relative flex h-3 w-3">
+            <span id="backDot" class="absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
+            <span id="forwardDot" class="relative inline-flex h-3 w-3 rounded-full bg-gray-500"></span>
+          </span>
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Server URL</span>
+          </label>
+          <input id="serverInput" type="text" placeholder="https://example.com" class="input input-bordered">
+        </div>
+        <div class="card-actions justify-end">
+          <button id="serverToggle" class="btn btn-primary">Connect</button>
+        </div>
       </div>
-    </section>
-    <section>
-      <div class="sectionTitle">Server Actions</div>
-      <button class="btn btn-active btn-primary" id="serverButton">Join Server</button>
-    </section>
-    <section>
-      <div class="sectionTitle">Media Actions</div>
-      <button class="btn btn-active btn-secondary" id="playButton">
-        Pick file
-      </button>
-    </section>
-    <section>
-      <div class="sectionTitle">Additional Options</div>
-      <input type="text" id="textInput" class="input w-full max-w-xs" placeholder="Enter text">
-    </section>
+    </div>
+    <div class="mt-4">
+      <div class="card bg-base-100 shadow-xl p-4">
+        <h2 class="card-title">Send Media</h2>
+        <div class="form-control">
+          <button id="mediaInput" class="btn btn-wide btn-neutral">Click me to upload image</button>
+          <label class="label">
+            <span class="label-text">Top Message</span>
+          </label>
+          <input type="text" placeholder="Type your message here" class="input input-bordered" id="messageTopInput">
+          <label class="label">
+            <span class="label-text">Bottom Message</span>
+          </label>
+          <input type="text" placeholder="Type your message here" class="input input-bordered" id="messageBottomInput">
+        </div>
+        <div class="mt-4">
+          <h3 class="text-lg font-bold mb-2">Preview</h3>
+          <div class="flex justify-center bg-neutral rounded-lg overflow-hidden">
+            <div class="relative">
+              <img id="mediaPreview" class="max-w-[400px] max-h-[400px] object-contain" src="#"
+                onerror="this.style.display='none'" />
+              <span id="topMessage"
+                class="absolute w-full font-['Menlo'] py-4 top-0 inset-x-0 text-2xl font-black text-center text-white">
+              </span>
+              <span id="bottomMessage"
+                class="absolute w-full font-['Menlo'] py-4 bottom-0 inset-x-0 text-2xl font-black text-center text-white">
+              </span>
+            </div>
+          </div>
+          <div class="card-actions justify-end mt-4">
+            <button class="btn btn-primary" id="sendMediaButton">Fire !!</button>
+          </div>
+        </div>
+      </div>
+    </div>
 </body>
 
 </html>
