@@ -11,6 +11,7 @@ use axum::{
 };
 use axum_macros::debug_handler;
 use rand::distributions::{Alphanumeric, DistString};
+use serde::{Deserialize, Serialize};
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 use tokio::{
     fs::{self, File},
@@ -176,22 +177,28 @@ async fn handle_socket(mut socket: WebSocket, app_state: Arc<AppState>, _addr: S
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+enum WsMessage {
+    ClientCount(ClientCountMessage),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ClientCountMessage {
+    client_count: u64,
+}
+
 fn handle_client_connect(tx: Sender<Message>) {
-    let client_count = tx.receiver_count();
-    if let Err(e) = tx.send(Message::Text(format!(
-        "update_client_count;{}",
-        client_count
-    ))) {
+    let client_count = tx.receiver_count() as u64;
+    let message = WsMessage::ClientCount(ClientCountMessage { client_count });
+    if let Err(e) = tx.send(Message::Text(serde_json::to_string(&message).unwrap())) {
         eprintln!("Failed to send client count update: {:?}", e);
     }
 }
 
 fn handle_client_disconnect(tx: Sender<Message>) {
-    let client_count = tx.receiver_count();
-    if let Err(e) = tx.send(Message::Text(format!(
-        "update_client_count;{}",
-        client_count - 1
-    ))) {
+    let client_count = (tx.receiver_count() - 1) as u64;
+    let message = WsMessage::ClientCount(ClientCountMessage { client_count });
+    if let Err(e) = tx.send(Message::Text(serde_json::to_string(&message).unwrap())) {
         eprintln!("Failed to send client count update: {:?}", e);
     }
 }

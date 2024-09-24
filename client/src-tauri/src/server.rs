@@ -1,7 +1,8 @@
 use std::{borrow::Cow, time::Duration};
 
 use futures_util::{SinkExt, StreamExt};
-use log::info;
+use log::{debug, info};
+use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_http::reqwest;
 use tokio::sync::{broadcast, Mutex};
@@ -78,12 +79,7 @@ pub async fn connect(handle: AppHandle, domain: String) -> Result<(), String> {
                 tokio::select! {
                     msg = read.next() => {
                         match msg {
-                            Some(Ok(message)) => {
-                                if let Ok(value)= serde_json::from_str::<MediaMessage>(&message.to_string()){
-                                    println!("{:?}", value);
-                                    handle_clone.emit_to("player", "ff://media_play", value).unwrap();
-                                }
-                            }
+                            Some(Ok(message)) => handle_message(&handle_clone, message),
                             Some(Err(_error)) => {
                                 // handle error
                             }
@@ -123,6 +119,41 @@ pub async fn connect(handle: AppHandle, domain: String) -> Result<(), String> {
         Ok(())
     } else {
         Err("Connection has already been set".to_string())
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum WsMessage {
+    Media(MediaMessage),
+    ClientCount(ClientCountMessage),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientCountMessage {
+    client_count: u64,
+}
+
+fn handle_message(handle: &AppHandle, message: Message) {
+    if let Message::Text(message) = message {
+        match serde_json::from_str::<WsMessage>(message.as_str()) {
+            Ok(ws_message) => match ws_message {
+                WsMessage::Media(message) => {
+                    debug!("{:?}", message);
+                    handle
+                        .emit_to("player", "ff://media_play", message)
+                        .unwrap();
+                }
+                WsMessage::ClientCount(message) => {
+                    debug!("{:?}", message);
+                    handle
+                        .emit_to("player", "ff://client_count", message)
+                        .unwrap();
+                }
+            },
+            Err(error) => {
+                eprintln!("Error: {:?} cause by {:?}", error, message)
+            }
+        }
     }
 }
 
