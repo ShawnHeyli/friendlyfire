@@ -27,7 +27,7 @@ listen<MediaMessage>("ff://media_play", (event) => {
 
     let newWidth = width;
     let newHeight = height;
-    if (width > 400 | height > 400){
+    if ((width > 400) || (height > 400)){
       if (width > height) {
         newWidth = 400;
         newHeight = Math.floor((height / width) * 400);
