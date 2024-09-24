@@ -67,3 +67,12 @@ Now to start the development version of the client
 ```
   bunx tauri dev
 ```
+## Troubleshooting
+### Pop-shell window exception
+
+For the users that are using [pop-shell](https://github.com/pop-os/shell#installation), you can add the client window(s) as an exception to the auto tilling feature. This will make the meme windows keep its default size and appear on the screen as it should be. To do so : 
+  1. click on the pop-shell app indicator in your status bar
+  2. click on “Floating window exceptions”
+  3. click on “Select”
+  4. wait for a meme window to appear and click on it
+  5. click on “This app's windows”.
