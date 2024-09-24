@@ -25,13 +25,16 @@ listen<MediaMessage>("ff://media_play", (event) => {
     const width = img.naturalWidth;
     const height = img.naturalHeight;
 
-    let newWidth, newHeight;
-    if (width > height) {
-      newWidth = 400;
-      newHeight = Math.floor((height / width) * 400);
-    } else {
-      newHeight = 400;
-      newWidth = Math.floor((width / height) * 400);
+    let newWidth = width;
+    let newHeight = height;
+    if (width > 400 | height > 400){
+      if (width > height) {
+        newWidth = 400;
+        newHeight = Math.floor((height / width) * 400);
+      } else {
+        newHeight = 400;
+        newWidth = Math.floor((width / height) * 400);
+      }
     }
 
     const window = getCurrentWebviewWindow();
