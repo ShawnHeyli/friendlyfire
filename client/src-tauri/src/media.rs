@@ -8,7 +8,10 @@ use tokio::{fs::File, sync::Mutex};
 use tokio_tungstenite::tungstenite::Message;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-use crate::{server::ServerState, ConnectionState};
+use crate::{
+    server::{ServerState, WsMessage},
+    ConnectionState,
+};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct MediaMessage {
@@ -58,14 +61,16 @@ pub async fn send(
         let mut state = mutex_state.lock().await;
 
         if let Some(ws) = &mut state.ws_connection {
-            let message = MediaMessage {
+            let message = WsMessage::Media(MediaMessage {
                 media_url: remote_path,
                 top_message,
                 bottom_message,
                 sender: user,
                 timeout,
-            };
-            ws.send(message.into()).await.unwrap();
+            });
+            ws.send(Message::text(serde_json::to_string(&message).unwrap()))
+                .await
+                .unwrap();
         }
     }
 }
