@@ -24,7 +24,7 @@ export function initMediaPreview() {
       directory: false,
       filters: [{
         name: "Default",
-        extensions: ['png', 'jpg', 'jpeg']
+        extensions: ['png', 'jpg', 'jpeg', 'gif']
       }]
     })
 
