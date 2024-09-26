@@ -24,7 +24,24 @@ export function initMediaPreview() {
       directory: false,
       filters: [{
         name: "Default",
-        extensions: ['png', 'jpg', 'jpeg', 'gif']
+        extensions: [
+          "avif",
+          "bmp",
+          "dds",
+          "exr",
+          "ff",
+          "gif",
+          "hdr",
+          "ico",
+          "jpg",
+          "jpeg",
+          "png",
+          "pnm",
+          "qoi",
+          "tga",
+          "tiff",
+          "webp",
+        ]
       }]
     })
 
@@ -76,8 +93,8 @@ async function enablePreview(filepath: string) {
   sendMediaButton.classList.remove("btn-disabled");
 }
 
-export function initSendMedia(){
-  const usernameInput = document.getElementById('usernameInput') as HTMLInputElement;  
+export function initSendMedia() {
+  const usernameInput = document.getElementById('usernameInput') as HTMLInputElement;
   const sendMediaButton = document.getElementById("sendMediaButton") as HTMLButtonElement;
 
   const messageTopInput = document.getElementById("messageTopInput") as HTMLInputElement;
@@ -86,10 +103,10 @@ export function initSendMedia(){
 
   sendMediaButton.addEventListener("click", async () => {
     await invoke("send_media", {
-      filepath: file, 
-      topMessage: messageTopInput.value, 
-      bottomMessage: messageBottomInput.value, 
-      user: {username: usernameInput.value},
+      filepath: file,
+      topMessage: messageTopInput.value,
+      bottomMessage: messageBottomInput.value,
+      user: { username: usernameInput.value },
       timeout: parseInt(timeoutRange.value) * 1000
     })
   })
