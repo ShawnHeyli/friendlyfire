@@ -1,4 +1,5 @@
 mod media;
+mod message;
 mod server;
 
 use std::path::PathBuf;

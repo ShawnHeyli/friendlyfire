@@ -14,7 +14,7 @@ use tokio_tungstenite::{
     },
 };
 
-use crate::{media::MediaMessage, ConnectionState};
+use crate::{media::MediaMessage, message::WsMessage, ConnectionState};
 
 #[derive(Default)]
 pub struct ServerState {
@@ -120,12 +120,6 @@ pub async fn connect(handle: AppHandle, domain: String) -> Result<(), String> {
     } else {
         Err("Connection has already been set".to_string())
     }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum WsMessage {
-    Media(MediaMessage),
-    ClientCount(ClientCountMessage),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

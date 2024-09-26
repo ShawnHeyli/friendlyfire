@@ -1,7 +1,5 @@
-use futures_util::SinkExt;
 use image::{DynamicImage, ImageFormat, ImageReader};
 use std::{
-    ffi::OsString,
     fmt::{self, Display, Formatter},
     path::PathBuf,
 };
@@ -13,8 +11,8 @@ use tokio::{fs::File, io::AsyncReadExt, sync::Mutex};
 use tokio_tungstenite::tungstenite::Message;
 
 use crate::{
-    server::{ServerState, WsMessage},
-    ConnectionState,
+    message::{WsError, WsMessage},
+    server::ServerState,
 };
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -46,7 +44,7 @@ pub enum SendError {
     Image(image::ImageError),
     Webp(String),
     Tungstenite(tokio_tungstenite::tungstenite::Error),
-    ConnectionNone,
+    SendingError(WsError),
     RemoteMediaNone,
     UrlNone,
 }
@@ -81,6 +79,12 @@ impl From<tokio_tungstenite::tungstenite::Error> for SendError {
     }
 }
 
+impl From<WsError> for SendError {
+    fn from(err: WsError) -> Self {
+        SendError::SendingError(err)
+    }
+}
+
 impl Display for SendError {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
@@ -90,7 +94,7 @@ impl Display for SendError {
             SendError::Image(err) => write!(f, "Image error: {}", err),
             SendError::Webp(err) => write!(f, "WebP encoding error: {:?}", err),
             SendError::Tungstenite(err) => write!(f, "Tungstenite error: {:?}", err),
-            SendError::ConnectionNone => write!(f, "No connection"),
+            SendError::SendingError(error) => write!(f, "{}", error),
             SendError::RemoteMediaNone => write!(f, "No remote media url"),
             SendError::UrlNone => write!(f, "No URL"),
         }
@@ -139,22 +143,14 @@ pub async fn send(
         // File uploaded on the server from now
 
         if let Some(remote_path) = state.remote_media(remote_path) {
-            let mutex_state = handle.state::<Mutex<ConnectionState>>();
-            let mut state = mutex_state.lock().await;
-
-            if let Some(ws) = &mut state.ws_connection {
-                let message = WsMessage::Media(MediaMessage {
-                    media_url: remote_path,
-                    top_message,
-                    bottom_message,
-                    sender: user,
-                    timeout,
-                });
-                ws.send(Message::text(serde_json::to_string(&message)?))
-                    .await?;
-                return Ok(());
-            }
-            return Err(SendError::ConnectionNone);
+            let message = WsMessage::Media(MediaMessage {
+                media_url: remote_path,
+                top_message,
+                bottom_message,
+                sender: user,
+                timeout,
+            });
+            message.send(&handle).await?
         }
         return Err(SendError::RemoteMediaNone);
     }
