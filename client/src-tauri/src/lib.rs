@@ -70,6 +70,9 @@ async fn send_media(
     bottom_message: String,
     user: media::User,
     timeout: u64,
-) {
-    media::send(handle, filepath, top_message, bottom_message, user, timeout).await
+) -> Result<(), ()> {
+    media::send(handle, filepath, top_message, bottom_message, user, timeout)
+        .await
+        .unwrap();
+    Ok(())
 }
