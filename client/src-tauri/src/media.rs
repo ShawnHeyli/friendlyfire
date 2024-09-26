@@ -1,12 +1,12 @@
 use futures_util::SinkExt;
+use image::{DynamicImage, ImageFormat, ImageReader};
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
-use tokio::{fs::File, sync::Mutex};
+use tokio::{fs::File, io::AsyncReadExt, sync::Mutex};
 use tokio_tungstenite::tungstenite::Message;
-use tokio_util::codec::{BytesCodec, FramedRead};
 
 use crate::{
     server::{ServerState, WsMessage},
@@ -42,16 +42,29 @@ pub async fn send(
     user: User,
     timeout: u64,
 ) {
-    let file = File::open(filepath).await.unwrap();
-    let stream = FramedRead::new(file, BytesCodec::new());
-    let body = reqwest::Body::wrap_stream(stream);
+    let image_reader = ImageReader::open(filepath.clone())
+        .unwrap()
+        .with_guessed_format()
+        .unwrap();
+    let img_data = match image_reader.format().unwrap() {
+        ImageFormat::Gif => {
+            let mut image_file = File::open(filepath).await.unwrap();
+            let mut buf = Vec::new();
+            image_file.read_to_end(&mut buf).await.unwrap();
+            buf
+        }
+        _ => {
+            let decoded_image = image_reader.decode().unwrap();
+            encode_webp(&decoded_image).unwrap()
+        }
+    };
 
     let mutex_state = handle.state::<Mutex<ServerState>>();
     let state = mutex_state.lock().await;
 
     if let Some(url) = state.upload_url().clone() {
         let client = reqwest::Client::new();
-        let res = client.post(url).body(body).send().await.unwrap();
+        let res = client.post(url).body(img_data).send().await.unwrap();
         let remote_path = res.text().await.unwrap();
 
         // File uploaded on the server from now
@@ -73,4 +86,11 @@ pub async fn send(
                 .unwrap();
         }
     }
+}
+
+fn encode_webp(image: &DynamicImage) -> Result<Vec<u8>, String> {
+    let encoder = webp::Encoder::from_image(image)
+        .map_err(|e| format!("Failed to create a webp encoder: {}", e))?;
+    let webp_data = encoder.encode(60.0);
+    Ok(webp_data.to_vec())
 }

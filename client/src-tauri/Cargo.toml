@@ -28,6 +28,8 @@ log = "0.4.22"
 tauri-plugin-store = "2.0.0-rc"
 tauri-plugin-dialog = "2.0.0-rc"
 tauri-plugin-fs = "2.0.0-rc"
+image = "0.25.2"
+webp = "0.3.0"
 
 # According to https://v2.tauri.app/fr/concept/size/#cargo-configuration
 [profile.dev]
