@@ -1424,6 +1424,7 @@ dependencies = [
  "tokio",
  "tokio-tungstenite",
  "tokio-util",
+ "url",
  "webp",
 ]
 
