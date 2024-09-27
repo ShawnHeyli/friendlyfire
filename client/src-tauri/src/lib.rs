@@ -4,7 +4,7 @@ mod server;
 
 use std::path::PathBuf;
 
-use futures_util::stream::SplitSink;
+use futures_util::stream::{SplitSink, SplitStream};
 use server::ServerState;
 use tauri::{AppHandle, Manager};
 use tokio::{
@@ -13,13 +13,14 @@ use tokio::{
 };
 use tokio_tungstenite::{tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
+pub type WebSocketSplitSink = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>;
+pub type WebSocketSplitStream = SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>;
+
 #[derive(Default)]
 struct ConnectionState {
     ws_connection: Option<WebSocketSplitSink>,
     kill_channel: Option<broadcast::Sender<()>>,
 }
-
-pub type WebSocketSplitSink = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -55,12 +56,16 @@ pub fn run() {
 
 #[tauri::command]
 async fn connect_to_server(handle: AppHandle, domain: String) -> Result<(), String> {
-    server::connect(handle, domain).await
+    server::connect(handle, domain)
+        .await
+        .map_err(|error| format!("{}", error))
 }
 
 #[tauri::command]
-async fn disconnect_from_server(handle: AppHandle) {
-    server::disconnect(handle).await
+async fn disconnect_from_server(handle: AppHandle) -> Result<(), String> {
+    server::disconnect(handle)
+        .await
+        .map_err(|error| format!("{}", error))
 }
 
 #[tauri::command]
@@ -71,9 +76,8 @@ async fn send_media(
     bottom_message: String,
     user: media::User,
     timeout: u64,
-) -> Result<(), ()> {
+) -> Result<(), String> {
     media::send(handle, filepath, top_message, bottom_message, user, timeout)
         .await
-        .unwrap();
-    Ok(())
+        .map_err(|error| format!("{}", error))
 }
