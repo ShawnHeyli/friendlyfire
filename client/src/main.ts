@@ -1,7 +1,7 @@
 import { Store } from "@tauri-apps/plugin-store";
 import { initStoredValues, restoreStoreValues } from "./store";
 import { initPingStatus } from "./ping";
-import { initDropListener, initMediaPreview, initSendMedia } from "./media";
+import { initDropListener, initMediaPreview, initSendMedia} from "./media";
 import { initUpdateAvatarPlaceHolder } from "./avatar";
 import { initServerToggle } from "./server";
 import { listen } from "@tauri-apps/api/event";

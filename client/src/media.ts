@@ -108,6 +108,7 @@ export function initSendMedia() {
       bottomMessage: messageBottomInput.value,
       user: { username: usernameInput.value },
       timeout: parseInt(timeoutRange.value) * 1000
-    })
+    })  
   })
 }
+
