@@ -64,6 +64,17 @@ async fn healthcheck(ConnectInfo(addr): ConnectInfo<SocketAddr>) -> impl IntoRes
 #[debug_handler]
 async fn upload(ConnectInfo(addr): ConnectInfo<SocketAddr>, body: Bytes) -> impl IntoResponse {
     println!("{} accessed /upload", addr);
+
+    let folder_path = std::path::Path::new("uploads");
+    // Check if the folder already exists
+    if !folder_path.exists() {
+        // Create the folder
+        match fs::create_dir(folder_path).await {
+            Ok(_) => println!("Folder 'uploads' created successfully."),
+            Err(e) => println!("Failed to create folder 'uploads': {}", e),
+        }
+    }
+
     let filename = Alphanumeric.sample_string(&mut rand::thread_rng(), 24);
     match File::create(format!("uploads/{}", &filename)).await {
         Ok(mut file) => {
