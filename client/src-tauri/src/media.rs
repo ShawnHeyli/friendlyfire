@@ -150,7 +150,8 @@ pub async fn send(
                 sender: user,
                 timeout,
             });
-            message.send(&handle).await?
+            message.send(&handle).await?;
+            return Ok(());
         }
         return Err(SendError::RemoteMediaNone);
     }
