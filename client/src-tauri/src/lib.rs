@@ -43,6 +43,9 @@ pub fn run() {
         .setup(|app| {
             let player = app.get_webview_window("player").unwrap();
             player.set_decorations(false)?;
+            player.set_closable(false)?;
+            player.set_minimizable(false)?;
+            player.set_visible_on_all_workspaces(true)?;
             player.set_always_on_top(true)?;
             player.hide()?;
 
