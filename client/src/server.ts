@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { popAlert } from "./alert";
 
 export function initServerToggle() {
   let connected = false;
@@ -8,14 +9,20 @@ export function initServerToggle() {
     if (!connected) {
       let domain = getServerDomain()
       await invoke("connect_to_server", { domain }).then(() => {
-        serverToggle.textContent= "Disconnect"
+        serverToggle.textContent = "Disconnect"
         connected = true;
+        popAlert("success", "Connected to the server", null);
+      }, (error) => {
+        popAlert("error", "Could not connect to the server", error);
       })
     }
     else {
       await invoke("disconnect_from_server").then(() => {
         serverToggle.textContent = "Connect"
         connected = false;
+        popAlert("success", "Disconnected from the server", null);
+      }, (error) => {
+        popAlert("error", "Could not connect to the server", error);
       })
     }
   })

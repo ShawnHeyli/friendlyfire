@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
+import { popAlert } from "./alert";
 
 let file: string | null;
 
@@ -108,7 +109,11 @@ export function initSendMedia() {
       bottomMessage: messageBottomInput.value,
       user: { username: usernameInput.value },
       timeout: parseInt(timeoutRange.value) * 1000
-    })  
+    }).then(() => {
+      popAlert("success", "Media fired !!", null);
+    }, (error) => {
+      popAlert("error", "Error while sending media", error);
+    })
   })
 }
 
