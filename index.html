@@ -30,13 +30,24 @@
     </div>
     <div class="grid grid-cols-1 gap-4">
       <div class="card bg-base-100 shadow-xl p-4">
-        <h2 class="card-title">Server Connection</h2>
-        <div class="sectionTitle flex items-center gap-2">
-          <p class="block">Server Status</p>
-          <span id="statusDot" class="relative flex h-3 w-3">
-            <span id="backDot" class="absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
-            <span id="forwardDot" class="relative inline-flex h-3 w-3 rounded-full bg-gray-500"></span>
-          </span>
+        <div class="flex justify-between">
+          <div>
+            <h2 class="card-title">Server Connection</h2>
+            <div class="sectionTitle flex items-center gap-2">
+              <p class="block">Server Status</p>
+              <span id="statusDot" class="relative flex h-3 w-3">
+                <span id="backDot"
+                  class="absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
+                <span id="forwardDot" class="relative inline-flex h-3 w-3 rounded-full bg-gray-500"></span>
+              </span>
+            </div>
+          </div>
+          <div class="stats shadow">
+            <div class="px-4 py-2 stat">
+              <div class="stat-title">Users</div>
+              <div id="clientCount" class="text-lg stat-value ">N/A</div>
+            </div>
+          </div>
         </div>
         <div class="form-control">
           <label class="label">

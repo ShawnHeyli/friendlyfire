@@ -28,5 +28,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   })
 
   listen<ClientCount>("ff://client_count", (event) => {
+    const clientCount = document.getElementById("clientCount") as HTMLDivElement;
+    clientCount.innerText = event.payload.client_count.toString();
   })
 });
