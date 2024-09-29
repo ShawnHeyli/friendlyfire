@@ -22,6 +22,7 @@
         "label": "player",
         "title": "player",
         "url": "./player.html",
+        "parent": "command-center",
         "visible": false,
         "closable": false,
         "decorations": false,
