@@ -24,11 +24,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   const timeoutRange = document.getElementById("timeoutRange") as HTMLInputElement;
   const timeoutFeedback = document.getElementById("timeoutFeedback") as HTMLSpanElement;
   timeoutRange.addEventListener("input", ()=>{
-    console.log(timeoutFeedback.innerText)
     timeoutFeedback.textContent = timeoutRange.value.toString() + "s"
   })
 
   listen<ClientCount>("ff://client_count", (event) => {
-    console.log(event)
   })
 });
