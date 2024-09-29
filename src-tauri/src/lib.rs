@@ -47,6 +47,8 @@ pub fn run() {
             player.set_minimizable(false)?;
             player.set_visible_on_all_workspaces(true)?;
             player.set_always_on_top(true)?;
+            player.set_resizable(false)?;
+            player.set_skip_taskbar(true)?;
             player.hide()?;
 
             app.manage(Mutex::new(ServerState::default()));

@@ -21,7 +21,15 @@
       {
         "label": "player",
         "title": "player",
-        "url": "./player.html"
+        "url": "./player.html",
+        "visible": false,
+        "closable": false,
+        "decorations": false,
+        "resizable": false,
+        "minimizable": false,
+        "transparent": true,
+        "skipTaskbar": true,
+        "focus": false
       }
     ],
     "security": {
