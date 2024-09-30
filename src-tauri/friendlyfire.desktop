@@ -2,6 +2,6 @@
 Name=FriendlyFire
 Comment=An app to send impromptu media to your friends
 Exec=/usr/bin/friendlyfire
-Terminal=true
+Terminal=false
 Type=Application
-Categories=Utility;
+Categories=Internet;
