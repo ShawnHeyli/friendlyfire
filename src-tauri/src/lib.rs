@@ -55,6 +55,15 @@ pub fn run() {
             app.manage(Mutex::new(ConnectionState::default()));
             Ok(())
         })
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::Destroyed = event {
+                if window.label() == "command-center" {
+                    for webview_window in window.app_handle().webview_windows().values() {
+                        webview_window.app_handle().exit(0);
+                    }
+                }
+            }
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
