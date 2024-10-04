@@ -39,6 +39,11 @@
   },
   "bundle": {
     "active": true,
+    "linux": {
+      "rpm": {
+        "desktopTemplate": "./friendlyfire.desktop"
+      }
+    },
     "targets": [
       "deb",
       "rpm",
