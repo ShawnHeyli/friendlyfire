@@ -1,7 +1,7 @@
-import { createStore} from "@tauri-apps/plugin-store";
+import { Store } from "@tauri-apps/plugin-store";
 import { initStoredValues, restoreStoreValues } from "./store";
 import { initPingStatus } from "./ping";
-import { initDropListener, initMediaPreview, initSendMedia} from "./media";
+import { initDropListener, initMediaPreview, initSendMedia } from "./media";
 import { initUpdateAvatarPlaceHolder } from "./avatar";
 import { initServerToggle } from "./server";
 import { listen } from "@tauri-apps/api/event";
@@ -11,7 +11,7 @@ type ClientCount = {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
-  const store = await createStore('store.bin');
+  const store = new Store('store.bin');
   restoreStoreValues(store);
   initPingStatus();
   initUpdateAvatarPlaceHolder();
@@ -23,7 +23,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const timeoutRange = document.getElementById("timeoutRange") as HTMLInputElement;
   const timeoutFeedback = document.getElementById("timeoutFeedback") as HTMLSpanElement;
-  timeoutRange.addEventListener("input", ()=>{
+  timeoutRange.addEventListener("input", () => {
     timeoutFeedback.textContent = timeoutRange.value.toString() + "s"
   })
 
