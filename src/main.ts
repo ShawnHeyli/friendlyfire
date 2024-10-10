@@ -1,7 +1,7 @@
 import { createStore } from "@tauri-apps/plugin-store";
 import { initStoredValues, restoreStoreValues } from "./store";
 import { initPingStatus } from "./ping";
-import { initDropListener, initMediaPreview, initSendMedia } from "./media";
+import { initDropListener, initMediaPreview, initPasteListener, initSendMedia } from "./media";
 import { initUpdateAvatarPlaceHolder } from "./avatar";
 import { initServerToggle } from "./server";
 import { listen } from "@tauri-apps/api/event";
@@ -16,6 +16,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   initPingStatus();
   initUpdateAvatarPlaceHolder();
   initDropListener();
+  initPasteListener();
   initMediaPreview();
   initServerToggle();
   initStoredValues(store);

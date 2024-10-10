@@ -3,6 +3,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { popAlert } from "./alert";
 import { listen } from "@tauri-apps/api/event";
+import clipboard from "tauri-plugin-clipboard-api";
 
 let file: string | null;
 
@@ -47,7 +48,9 @@ export function initMediaPreview() {
     })
 
     if (file) {
-      await enablePreview(file);
+      const contents = await readFile(file);
+      const blob = new Blob([contents]);
+      await enablePreview(URL.createObjectURL(blob));
     }
   })
 
@@ -61,19 +64,27 @@ export function initMediaPreview() {
 }
 
 export async function initDropListener() {
-  listen("tauri://drag-drop", (event) => {
-    enablePreview((event.payload as { paths: string[] }).paths[0]);
+  listen("tauri://drag-drop", async (event) => {
+    const contents = await readFile((event.payload as { paths: string[] }).paths[0]);
+    const blob = new Blob([contents]);
+    enablePreview(URL.createObjectURL(blob));
   })
 }
 
-async function enablePreview(filepath: string) {
+export async function initPasteListener() {
+  document.addEventListener("paste", async (_event) => {
+    const binaryImage = await clipboard.readImageBinary('Uint8Array') as Uint8Array;
+    const blob = new Blob([binaryImage]);
+    enablePreview(URL.createObjectURL(blob));
+  })
+}
+
+
+async function enablePreview(src: string) {
   const mediaPreview = document.getElementById("mediaPreview") as HTMLImageElement;
   const sendMediaButton = document.getElementById("sendMediaButton") as HTMLButtonElement;
 
-  const contents = await readFile(filepath);
-  const blob = new Blob([contents]);
-
-  mediaPreview.src = URL.createObjectURL(blob);
+  mediaPreview.src = src;
   mediaPreview.style.display = "block";
   mediaPreview.addEventListener("load", () => {
     URL.revokeObjectURL(mediaPreview.src);
