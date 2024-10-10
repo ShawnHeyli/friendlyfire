@@ -1,8 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
-import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { popAlert } from "./alert";
+import { listen } from "@tauri-apps/api/event";
 
 let file: string | null;
 
@@ -61,21 +61,9 @@ export function initMediaPreview() {
 }
 
 export async function initDropListener() {
-  document.body.addEventListener('dragover', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  });
-
-  document.body.addEventListener('drop', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  });
-
-  await getCurrentWebview().onDragDropEvent((event) => {
-    if (event.payload.type == "drop") {
-      enablePreview(event.payload.paths[0]);
-    }
-  });
+  listen("tauri://drag-drop", (event) => {
+    enablePreview((event.payload as { paths: string[] }).paths[0]);
+  })
 }
 
 async function enablePreview(filepath: string) {
