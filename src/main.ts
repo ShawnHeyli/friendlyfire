@@ -1,4 +1,4 @@
-import { Store } from "@tauri-apps/plugin-store";
+import { createStore } from "@tauri-apps/plugin-store";
 import { initStoredValues, restoreStoreValues } from "./store";
 import { initPingStatus } from "./ping";
 import { initDropListener, initMediaPreview, initSendMedia } from "./media";
@@ -11,7 +11,7 @@ type ClientCount = {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
-  const store = new Store('store.bin');
+  const store = await createStore('store.bin');
   restoreStoreValues(store);
   initPingStatus();
   initUpdateAvatarPlaceHolder();
