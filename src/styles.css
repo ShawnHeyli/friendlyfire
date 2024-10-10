@@ -1,5 +1,6 @@
 #topMessage,
 #bottomMessage {
+  font-family: Menlo, consolas, monospace;
   pointer-events: none;
   -webkit-text-stroke: 1px black;
 }
