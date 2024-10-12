@@ -1,5 +1,9 @@
 {
   "identifier": "desktop-capability",
+  "windows": [
+    "command-center",
+    "player"
+  ],
   "platforms": [
     "macOS",
     "windows",
